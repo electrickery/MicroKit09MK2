@@ -17,5 +17,5 @@ expansion.
 The orignial, published monitor version is 1.8. This repository contains
 my minor enhancements.
 
-My webpage on teh subject can be found here: 
+My webpage on the subject can be found here: 
 http://electrickery.connected.by.freedominter.net/comp/microKit09/
