@@ -1,0 +1,15 @@
+1.8 - the original version
+- this version is intended for a 2 kByte ROM, from E000h to E7FFh. The
+  executed code is expected from E000h-E7FFh. Due to incomplete address
+  decoding, the monitor is mirrored in the range E000h to FFFFh.
+- the original source is only changed to make it assemble with the 
+  asm6809 (https://www.6809.org.uk/asm6809) and produce identical binary 
+  code.
+  
+1.9 - (2021-04-15)
+- The code execution range is moved to F800h,
+- The display routine is changed to allow usage of the decimal point,
+- The display routine is changed to remove ghosting from the previous
+  character segments.
+- To make space for the extra code, some branches are changed from 16-
+  bit to 8-bit. There are two spare bytes in the 2 kByte space.

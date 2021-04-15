@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name vintageParts)(type Legacy)(uri ${KIPRJMOD}/vintageParts.lib)(options "")(descr ""))
+  (lib (name MicroKit09-rescue)(type Legacy)(uri ${KIPRJMOD}/MicroKit09-rescue.lib)(options "")(descr ""))
+)

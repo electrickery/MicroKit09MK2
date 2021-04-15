@@ -1,0 +1,57 @@
+Quick Reference Guide in progress.
+
+At startup and reset, the '-.... ..' prompt is shown. In this mode only some keys can be used:
+Mem, BPt, Reg, Cnt, L, P, Go.
+
+White keys:
+0/cc
+1/a
+2/b
+3/dp
+4/x
+5/y
+6/u
+7/pc
+8-9, A-F
+
+Grey keys:
+Bpt - Set Breakpoint. Enter break point address at the '.... bp' prompt. The monitor returns to the '-... ..'
+      prompt. After a subsequent Go, the program will stop at the specified address and enter register check mode.
+Cnt - Continue after SWI or breakpoint. When in register check mode, press Cnt twice to continue the program.
+Dec - Decrement address
+Inc - Increment address
+Mem - Memory read / write. Enter the address at the '.... .n' prompt. The data is shown and can be overwritten.
+      The Dec and Inc keys are used to navigate through memory.
+Go  - Execute program. Enter the start address at the '.... .G' prompt.
+L   - Read data from tape
+Ofs - Allows calculation of automatic offsets in RAM. Enter the address at the '.... Ar' prompt and press Go.  
+      The offset is shown at the '.... 0F' prompt.
+P -   Write data to tape
+      Enter start address at '.... .S' prompt and end address at '.... .F'. When complete 'F... ..' is shown.
+Reg - Register read / write. Select register at the '.... r' prompt. No Inc/Dec here.
+X   - Used in combination with Ofs key for the automatic offset calculation.
+
+Red keys:
+RST - Reset
+NMI - Non maskable interrupt
+
+
+On a software intterrupt (SWI) the returns to the monitor in register check mode (Inc/Dec can be used):
+  '..## .C' is the CC register,
+  '..## .A' is the A register,
+  '..## .b' is the B register,
+  '..## .d' is the DP register,
+  '#### .H' is the X register,
+  '#### .Y' is the Y register,
+  '#### .U' is the user stack register,
+  '#### .P' is the PC register,
+  '#### .S' is the system stack register.
+  
+  
+Useful addresses:
+
+07FA - 07FF - DISBUF, display buffer. 00 is all segments off, 7F is all segments on.
+
+
+
+
