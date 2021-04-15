@@ -5,6 +5,8 @@ single board computer was published, supporting a 6-digit, 7-segment Led
 display and 34 keys. The original has a 2 kByte monitor ROM and 2 kByte 
 RAM. 
 
+<p align="center"><img src="uK09_6809uP.jpg" alt="the two-part single board computer running a demo program.">
+
 Most published material can be found here: 
 https://lab.nethence.com/frederic/Microit09/
 
