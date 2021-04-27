@@ -13,3 +13,10 @@
   character segments.
 - To make space for the extra code, some branches are changed from 16-
   bit to 8-bit. There are two spare bytes in the 2 kByte space.
+
+1.9  (2021-04-27)
+- Reverted the execution address range back to E000h, as it seems to break
+  user programs. The twi changed to the display routine and the space
+  operation remain.
+  
+  

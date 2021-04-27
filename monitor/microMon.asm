@@ -67,7 +67,7 @@
 *  LE SWI2 EST A L'ADRESSE $E27C.
 *  LES AUTRES INTERRUPS SONT DEFINIES DS "EMPLACEMENT DES REGISTRES"
 ********************************************************************
-	ORG $F800
+	ORG $E000
 *
 * SCRUTATION DU CLAVIER *
 *
@@ -1220,7 +1220,7 @@ RNMI	LDX >SAVNMI
 ****** VECTEURS D'INTERRUPTION ******
 *************************************
 	SPC 2
-	ORG $FFF2
+	ORG $E7F2
 	SPC 1
 	FDB RSWI3 	; INTERRUPTION SOFT No 3
 	FDB RSWI2 	; INTERRUPTION SOFT No 2
