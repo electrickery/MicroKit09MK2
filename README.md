@@ -14,8 +14,8 @@ https://lab.nethence.com/frederic/Microit09/
 This is a recreation, with a smaller footprint and some room for 
 expansion.
 
-The orignial, published monitor version is 1.8. This repository contains
+The original, published monitor version is 1.8. This repository contains
 my minor enhancements.
 
 My webpage on the subject can be found here: 
-http://electrickery.connected.by.freedominter.net/comp/microKit09/
+http://electrickery.nl/comp/microKit09/
