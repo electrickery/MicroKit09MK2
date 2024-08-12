@@ -1216,11 +1216,32 @@ AFFIAD	TFR Y,X
 RNMI	LDX >SAVNMI
 	JMP ,X 	; EXECUTE ROUTINE NMI
 	SPC 2
+
+
+*******************************        
+* Routines from documentation *
+*******************************
+
+* Displays: 6809 uP
+* Etudes atour du 6809, p55
+                      
+D6809uP                            
+        LDD     #$7D7F
+        STD     >$07FA
+        LDD     #$7E3F
+        STD     >$07FC
+        LDD     #$E36B
+        STD     >$07FE
+DPLOOP  LBSR    >DISPRE
+        BRA     D6809uP
+
+        
+        
 *************************************
 ****** VECTEURS D'INTERRUPTION ******
 *************************************
 	SPC 2
-	ORG $E7F2
+	ORG $EFF2
 	SPC 1
 	FDB RSWI3 	; INTERRUPTION SOFT No 3
 	FDB RSWI2 	; INTERRUPTION SOFT No 2

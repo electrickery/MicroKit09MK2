@@ -1216,24 +1216,45 @@ E7EB                          SPC 1
 E7EB  BE07DD          RNMI    LDX >SAVNMI
 E7EE  6E84                    JMP ,X  ; EXECUTE ROUTINE NMI
 E7F0                          SPC 2
+                      
+                      
+                      *******************************        
+                      * Routines from documentation *
+                      *******************************
+                      
+                      * Displays: 6809 uP
+                      * Etudes atour du 6809, p55
+                                            
+E7F0                  D6809uP                            
+E7F0  CC7D7F                  LDD     #$7D7F
+E7F3  FD07FA                  STD     >$07FA
+E7F6  CC7E3F                  LDD     #$7E3F
+E7F9  FD07FC                  STD     >$07FC
+E7FC  CCE36B                  LDD     #$E36B
+E7FF  FD07FE                  STD     >$07FE
+E802  17F876          DPLOOP  LBSR    >DISPRE
+E805  20E9                    BRA     D6809uP
+                      
+                              
+                              
                       *************************************
                       ****** VECTEURS D'INTERRUPTION ******
                       *************************************
-E7F0                          SPC 2
-E7F2                          ORG $E7F2
-E7F2                          SPC 1
-E7F2  077A                    FDB RSWI3       ; INTERRUPTION SOFT No 3
-E7F4  E27F                    FDB RSWI2       ; INTERRUPTION SOFT No 2
-E7F6  0775                    FDB RFIRQ       ; INTERRUPTION RAPIDE HARD
-E7F8  0770                    FDB RIRQ        ; INTERRUPTION NORMALE HARD
-E7FA  E2A9                    FDB RSWI        ; INTERRUPTION SOFT No 1
-E7FC  E7EB                    FDB RNMI        ; INTERRUPTION NON MASQUABLE HARD
-E7FE  E21C                    FDB RESTAR      ; RESET GENERAL
-E800                          SPC 2
+E807                          SPC 2
+EFF2                          ORG $EFF2
+EFF2                          SPC 1
+EFF2  077A                    FDB RSWI3       ; INTERRUPTION SOFT No 3
+EFF4  E27F                    FDB RSWI2       ; INTERRUPTION SOFT No 2
+EFF6  0775                    FDB RFIRQ       ; INTERRUPTION RAPIDE HARD
+EFF8  0770                    FDB RIRQ        ; INTERRUPTION NORMALE HARD
+EFFA  E2A9                    FDB RSWI        ; INTERRUPTION SOFT No 1
+EFFC  E7EB                    FDB RNMI        ; INTERRUPTION NON MASQUABLE HARD
+EFFE  E21C                    FDB RESTAR      ; RESET GENERAL
+F000                          SPC 2
                       ***************************************
                       ****** EMPLACEMENT DES REGISTRES ******
                       ***************************************
-E800                          SPC 2
+F000                          SPC 2
 07A0                  PILMON  EQU $07A0       ; INITIALISATION PILE MONITEUR
 07C0                  PILE    EQU $07C0       ; PILE SYSTEME
 077A                  RSWI3   EQU $077A
@@ -1243,11 +1264,11 @@ A004                  DISREG  EQU $A004       ; DRA-ACCES CLAVIER ET SEGMENTS
 A005                  DISCNT  EQU $A005       ; ORB-COMMANDE CLAVIER ET AFFICHEUR
 A006                  SCNREG  EQU $A006       ; PIACRA
 A007                  SCNCNT  EQU $A007       ; PIACRB
-E800                          SPC 2
+F000                          SPC 2
                       ************************************************
                       ****** PARAMETRES VARIABLES SITUES EN RAM ******
                       ************************************************
-E800                          SPC 2
+F000                          SPC 2
 07DD                          ORG $07DD
 07DD                          SPC 1
 07DD                  SAVNMI  RMB 2
