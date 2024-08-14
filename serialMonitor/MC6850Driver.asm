@@ -44,7 +44,7 @@ UARTINI EQU     0b01010101 ;* /16, 8n1, no interrupt
 
 
 ; From SBUG source    
-; Output Character ; original name OUTCH
+; Output Character from A; original name OUTCH
 OUTCH	PSHS	A,X     ; push X first, then A
         LDX		CPORT   ; Load serial port base address
 _OUTCW	LDA		,X      ; Load serial port status byte
