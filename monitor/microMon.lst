@@ -103,12 +103,12 @@
  E022 86A0                    LDA #$A0
  E024 1F8B                    TFR A,DP
  E026 8D53            FINCLA  BSR DISPRE      ; ALLUMER LES AFFICHEURS
- E028 4F                      CLRA
- E029 9706                    STA <SCNREG     ; ACCES A DDRA
- E02B 9707                    STA <SCNCNT     ; ACCES A DDRB
+ E028 4F                      CLRA            ; 
+ E029 9706                    STA <SCNREG     ; PIA Control Register A 2=0: DDR
+ E02B 9707                    STA <SCNCNT     ; ACCES A DDRB  PIA DDR B
  E02D 9704                    STA <DISREG     ; PA EN ENTREE
- E02F 860F                    LDA #$0F
- E031 9705                    STA <DISCNT     ; PB EN SORTIE
+ E02F 860F                    LDA #$0F        ; lower nibble output, upper nibble input
+ E031 9705                    STA <DISCNT     ; PB EN SORTIE  
  E033 8604                    LDA #$04
  E035 9706                    STA <SCNREG     ; ACCES A ORA-DISREG
  E037 9707                    STA <SCNCNT     ; ACCES A DRB-DISCNT
@@ -1326,29 +1326,80 @@
                       * Routines from documentation *
                       *******************************
 
-                      * Displays: 6809 uP
+                      * Displays: 6809 uP  or 6309 uP
                       * Etudes atour du 6809, p55
+                      * Added 6309 check from bertmon53
                                             
-                      D6809uP                            
- E807 CC7D7F                  LDD     #$7D7F      ; 68
- E80A DDFA                    STD     <$07FA
- E80C CC7E3F                  LDD     #$7E3F      ; 09
- E80F DDFC                    STD     <$07FC
- E811 CC636B                  LDD     #$636B      ; uP
- E814 DDFE                    STD     <$07FE
- E816 17F862          DPLOOP  LBSR    >DISPRE
- E819 20FB                    BRA     DPLOOP
+                      D6809uP
+ E807 BDE828                  JSR     DT6863
+ E80A 2605                    BNE     D63
+                      D68
+ E80C CC7D7F                  LDD     #$7D7F      ; 68
+ E80F 2003                    BRA     D09uP
+                      D63
+ E811 CC7D1F                  LDD     #$7D1F      ; 63
+                      D09uP
+ E814 FD07FA                  STD     DISBUF
+ E817 CC7E3F                  LDD     #$7E3F      ; 09
+ E81A FD07FC                  STD     DISBUF+2
+ E81D CC636B                  LDD     #$636B      ; uP
+ E820 FD07FE                  STD     DISBUF+4
+ E823 BDE07B          DPLOOP  JSR     >DISPRE
+ E826 20FB                    BRA     DPLOOP
+
+                      DT6863  ; 6809/6309 test
+ E828 3406                    PSHS    D
+ E82A 1043                    FDB     $1043           ; 6309 COMD, 6809 COMA
+ E82C E161                    CMPB    1,S             ; 6309 NE,   6809 EQ
+ E82E 4F                      CLRA    ;$              ; TEST 6309
+ E82F 4C                      INCA    ;$
+ E830 3586                    PULS    D,PC 
+
+                      * Displays: 'tst-kk'
+                      * Key value as reported by GETKEY
 
                       KBTEST
- E81B 8607                    LDA     #$07
- E81D 1F8B                    TFR     A, DP
- E81F CCFFFF                  LDD     #$FFFF
- E822 DDFA                    STD     <$07FA
- E824 DDFC                    STD     <$07FC
- E826 DDFE                    STD     <$07FE
- E828 17F850                  LBSR     DISPRE
- E82B 20EE                    BRA     KBTEST
+ E832 CC713D                  LDD     #$713D
+ E835 FD07FA                  STD     DISBUF
+ E838 CC7101                  LDD     #$7101
+ E83B FD07FC                  STD     DISBUF+2
+ E83E 4F                      CLRA
+ E83F 5F                      CLRB
+ E840 FD07FE                  STD     DISBUF+4
+                      KBLOOP  
+ E843 17F7DA                  LBSR    >GETKEY
+ E846 3402                    PSHS    A
+ E848 17F8B9                  LBSR    >L7SEG
+ E84B B707FE                  STA     DISBUF+4
+ E84E 3502                    PULS    A
+ E850 17F8B5                  LBSR    >R7SEG
+ E853 B707FF                  STA     DISBUF+5
+ E856 17F822                  LBSR    >DISPRE 
+ E859 20E8                    BRA     KBLOOP
 
+                      * segments:
+                      *     _3_
+                      *  5 |   | 1
+                      *    |_0_| 
+                      *  6 |   | 2
+                      *    |_4_|
+                      * segments:
+
+                      *   U1: |_|   U2: |_|   U3:  _|  U4:    _|   U5:   |
+                      *        _|         |        _|          |        _|
+                      *     
+                      *    X: | |  Bpt: | |   P:   |_    L:   |   Ofs: |_|
+                      *   $36  _|   $26   |  $35    _|  $34    _|  $33  _
+                      *
+                      *  Cnt: | |  Go:  |_   Reg:  |   Mem:   |   Dec:      Inc:
+                      *   $32  _   $31   _    $30   _   $20        $10  _    $00
+                      *
+                      *          B:    C:    D:    E:    F:
+                      *          $25   $24   $23   $22   $21
+                      *          6:    7:    8:    9:     A:
+                      *          $15   $14   $13   $12   $11
+                      *    0:    1:    2:    3:    4:     5:  
+                      *    $06   $05   $04   $03   $02    $01
 
 
                       *************************************
@@ -1398,6 +1449,9 @@ Register
                       *  |   |   +---+---+--------------- Cx2 Mode
                       *  |   +--------------------------- Interrupt Flag Cx2: b7=1 Interrupt occurred
                       *  +------------------------------- Interrupt Flag Cx1: b7=1 Interrupt occurred
+                      *
+                      * Data Direction Register
+                      * 1=output, 0=input
 
  A004                 DISREG  EQU $A004       ; DRA-ACCES CLAVIER ET SEGMENTS      PIA DDR/PR A
  A005                 DISCNT  EQU $A005       ; ORB-COMMANDE CLAVIER ET AFFICHEUR  PIA DDR/PR B
@@ -1450,12 +1504,13 @@ SYMBOL TABLE
     CODFIN 02 E68D    COLSUI 02 E050    COMDEC 02 07EE    COMPAB 02 E43A
     COMPAR 02 E4BB    COMPR2 02 E52E    COMPR3 02 E53A    COMPR4 02 E54C
     COMPR5 02 E575    CONHEX 02 E11A    CONROT 02 E5E3     CONTI 02 E208
-   D6809UP 02 E807    DEBCHA 02 E6E8    DECENC 02 E58D    DECHEX 02 E50C
-    DECKEY 02 E05B     DECRE 02 E1AF    DECTJS 02 E593    DEPLAC 02 E4FA
-    DERADD 02 E645    DETECS 02 E609    DIGTBL 02 E010    DISBUF 02 07FA
-    DISCNT 00 A005    DISFIN 02 E64F    DISPRE 02 E07B    DISREG 00 A004
-      DLY1 02 E0AD      DLY2 02 E06D    DLY30U 02 E5BD    DLY5MS 02 E6F2
-     DONEA 02 E12D    DPLOOP 02 E816    ENCDON 02 E148    ENCORE 02 E2AE
+     D09UP 02 E814       D63 02 E811       D68 02 E80C   D6809UP 02 E807
+    DEBCHA 02 E6E8    DECENC 02 E58D    DECHEX 02 E50C    DECKEY 02 E05B
+     DECRE 02 E1AF    DECTJS 02 E593    DEPLAC 02 E4FA    DERADD 02 E645
+    DETECS 02 E609    DIGTBL 02 E010    DISBUF 02 07FA    DISCNT 00 A005
+    DISFIN 02 E64F    DISPRE 02 E07B    DISREG 00 A004      DLY1 02 E0AD
+      DLY2 02 E06D    DLY30U 02 E5BD    DLY5MS 02 E6F2     DONEA 02 E12D
+    DPLOOP 02 E823    DT6863 02 E828    ENCDON 02 E148    ENCORE 02 E2AE
     EREURE 02 E440    ERREUR 02 E43E     ERROR 02 E7B5      EXCN 02 E283
      EXDEC 02 E180     EXINC 02 E182    EXLBCL 02 E758    EXLBIL 02 E75A
     EXLOAD 02 E5F1    EXMEMO 02 E12F    EXOFST 02 E71D    EXPOCT 02 E1B5
@@ -1464,33 +1519,33 @@ SYMBOL TABLE
     FONREG 02 E31F    GETKEY 02 E020    HEXCON 02 E0EF    HEXIN7 02 E0D4
     INCREM 02 E16B     INTER 02 E30C    INTER2 02 E2B4    INTER3 02 E5AF
     INTR05 02 E44C    INTR08 02 E47F    INTR16 02 E4A0    INTVAL 02 E4D7
-    KBTEST 02 E81B    KEYHEX 02 E0EC    KEYTBL 02 E000     L7SEG 02 E104
-    LIGSUI 02 E03B    LSBDSA 02 E58B    M10000 02 E563      MABS 00 0760
-     MOINS 02 E202    MSBDON 02 E4CC    MSBLSB 02 E59A    MUL100 02 E5A3
-    MULFIN 02 E546    MULPAR 02 E525    MUP100 02 E5A9    NDVALH 02 E10F
-    NEGPOS 02 07E9    NONFIN 02 E122     NOREB 02 E06C    NOUDLY 02 E5B5
-    OFFSET 02 E1CA    OFPOCT 02 E730      PILE 00 07C0    PILMON 00 07A0
-    PLUCOU 02 E77B      PLUS 02 E1FB    PLUSMS 02 07E3    POCPOS 02 E461
-   POSITIF 02 E46F    PRELOW 02 07E7    PRESEH 02 07E5    PRESEL 02 07E6
-    PRESER 02 07E1    PREXIN 02 E18A    PROMPT 02 E2A9     R7SEG 02 E108
-    R8BREG 02 E3B5       RCR 02 E49C    RE8BIT 02 E356    REBIT8 02 E35B
-    RECBIT 02 E5B3    RECMCE 02 E557     RECOM 02 E098    RECYCL 02 E683
-    REG16B 02 E3C0     REGPC 02 E360    REGPRE 02 E334    REGSUI 02 E313
-    REGTBL 02 E2B6    REMEMO 02 E138    RESTAR 02 E22E    RETOU1 02 E787
-    RETOU2 02 E78B    RETOUR 02 E4F9     RFIRQ 00 0775      RIRQ 00 0770
-      RNMI 02 E802    ROUNMI 02 E287    RPOINT 02 E23C      RSWI 02 E2BF
-     RSWI2 02 E291     RSWI3 00 077A    SADDR1 02 07F2    SADDR2 02 07F4
-    SASWI2 02 07DF      SAUT 02 E700    SAUVER 02 07E2     SAVB1 02 07F6
-     SAVB2 02 07F7    SAVCNT 02 07F0    SAVNMI 02 07DD    SAVPIL 02 07F8
-    SAVPOC 02 07E4    SAVREG 02 07F1    SAVRES 02 07EF    SCARRY 02 E5B7
-    SCNCNT 00 A007    SCNREG 00 A006    SCRUDE 02 E32E    SCRUTA 02 E09F
-    SCRUTC 02 E0F6    SECPAR 02 E565    SETMBS 02 E220       SM1 02 E227
-       SM2 02 E229    STADON 02 E49A    STOCKA 02 E7E0    STODN1 02 E494
-    STODON 02 E492       SUI 02 E4EB    SUICHA 02 E637    SUITEB 02 E768
-    SUITEP 02 E4E0    SUITER 02 E2E6     SUIVT 02 E7D6     TEMPO 02 E7BB
-    TESTER 02 E56F    TESTST 02 E432    TJTRAN 02 E6A8    TOUREG 02 E2D3
-    TRANSM 02 E6F0    TSTDEC 02 E328    TSTPOC 02 E45C    TSTSUI 02 E445
-    VALHEX 02 E116
-213 SYMBOLS
+    KBLOOP 02 E843    KBTEST 02 E832    KEYHEX 02 E0EC    KEYTBL 02 E000
+     L7SEG 02 E104    LIGSUI 02 E03B    LSBDSA 02 E58B    M10000 02 E563
+      MABS 00 0760     MOINS 02 E202    MSBDON 02 E4CC    MSBLSB 02 E59A
+    MUL100 02 E5A3    MULFIN 02 E546    MULPAR 02 E525    MUP100 02 E5A9
+    NDVALH 02 E10F    NEGPOS 02 07E9    NONFIN 02 E122     NOREB 02 E06C
+    NOUDLY 02 E5B5    OFFSET 02 E1CA    OFPOCT 02 E730      PILE 00 07C0
+    PILMON 00 07A0    PLUCOU 02 E77B      PLUS 02 E1FB    PLUSMS 02 07E3
+    POCPOS 02 E461   POSITIF 02 E46F    PRELOW 02 07E7    PRESEH 02 07E5
+    PRESEL 02 07E6    PRESER 02 07E1    PREXIN 02 E18A    PROMPT 02 E2A9
+     R7SEG 02 E108    R8BREG 02 E3B5       RCR 02 E49C    RE8BIT 02 E356
+    REBIT8 02 E35B    RECBIT 02 E5B3    RECMCE 02 E557     RECOM 02 E098
+    RECYCL 02 E683    REG16B 02 E3C0     REGPC 02 E360    REGPRE 02 E334
+    REGSUI 02 E313    REGTBL 02 E2B6    REMEMO 02 E138    RESTAR 02 E22E
+    RETOU1 02 E787    RETOU2 02 E78B    RETOUR 02 E4F9     RFIRQ 00 0775
+      RIRQ 00 0770      RNMI 02 E802    ROUNMI 02 E287    RPOINT 02 E23C
+      RSWI 02 E2BF     RSWI2 02 E291     RSWI3 00 077A    SADDR1 02 07F2
+    SADDR2 02 07F4    SASWI2 02 07DF      SAUT 02 E700    SAUVER 02 07E2
+     SAVB1 02 07F6     SAVB2 02 07F7    SAVCNT 02 07F0    SAVNMI 02 07DD
+    SAVPIL 02 07F8    SAVPOC 02 07E4    SAVREG 02 07F1    SAVRES 02 07EF
+    SCARRY 02 E5B7    SCNCNT 00 A007    SCNREG 00 A006    SCRUDE 02 E32E
+    SCRUTA 02 E09F    SCRUTC 02 E0F6    SECPAR 02 E565    SETMBS 02 E220
+       SM1 02 E227       SM2 02 E229    STADON 02 E49A    STOCKA 02 E7E0
+    STODN1 02 E494    STODON 02 E492       SUI 02 E4EB    SUICHA 02 E637
+    SUITEB 02 E768    SUITEP 02 E4E0    SUITER 02 E2E6     SUIVT 02 E7D6
+     TEMPO 02 E7BB    TESTER 02 E56F    TESTST 02 E432    TJTRAN 02 E6A8
+    TOUREG 02 E2D3    TRANSM 02 E6F0    TSTDEC 02 E328    TSTPOC 02 E45C
+    TSTSUI 02 E445    VALHEX 02 E116
+218 SYMBOLS
 
 0 error(s), 0 warning(s)

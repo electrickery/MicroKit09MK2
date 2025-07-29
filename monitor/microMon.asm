@@ -103,12 +103,12 @@ GETKEY  PSHS Y,DP,B
         LDA #$A0
         TFR A,DP
 FINCLA  BSR DISPRE      ; ALLUMER LES AFFICHEURS
-        CLRA
-        STA <SCNREG     ; ACCES A DDRA
-        STA <SCNCNT     ; ACCES A DDRB
+        CLRA            ; 
+        STA <SCNREG     ; PIA Control Register A 2=0: DDR
+        STA <SCNCNT     ; ACCES A DDRB  PIA DDR B
         STA <DISREG     ; PA EN ENTREE
-        LDA #$0F
-        STA <DISCNT     ; PB EN SORTIE
+        LDA #$0F        ; lower nibble output, upper nibble input
+        STA <DISCNT     ; PB EN SORTIE  
         LDA #$04
         STA <SCNREG     ; ACCES A ORA-DISREG
         STA <SCNCNT     ; ACCES A DRB-DISCNT
@@ -1326,29 +1326,80 @@ RNMI    LDX >SAVNMI
 * Routines from documentation *
 *******************************
 
-* Displays: 6809 uP
+* Displays: 6809 uP  or 6309 uP
 * Etudes atour du 6809, p55
+* Added 6309 check from bertmon53
                       
-D6809uP                            
+D6809uP
+        JSR     DT6863
+        BNE     D63
+D68
         LDD     #$7D7F      ; 68
-        STD     <$07FA
+        BRA     D09uP
+D63
+        LDD     #$7D1F      ; 63
+D09uP
+        STD     DISBUF
         LDD     #$7E3F      ; 09
-        STD     <$07FC
+        STD     DISBUF+2
         LDD     #$636B      ; uP
-        STD     <$07FE
-DPLOOP  LBSR    >DISPRE
+        STD     DISBUF+4
+DPLOOP  JSR     >DISPRE
         BRA     DPLOOP
 
-KBTEST
-        LDA     #$07
-        TFR     A, DP
-        LDD     #$FFFF
-        STD     <$07FA
-        STD     <$07FC
-        STD     <$07FE
-        LBSR     DISPRE
-        BRA     KBTEST
+DT6863  ; 6809/6309 test
+        PSHS    D
+        FDB     $1043           ; 6309 COMD, 6809 COMA
+        CMPB    1,S             ; 6309 NE,   6809 EQ
+        CLRA    ;$              ; TEST 6309
+        INCA    ;$
+        PULS    D,PC 
 
+* Displays: 'tst-kk'
+* Key value as reported by GETKEY
+
+KBTEST
+        LDD     #$713D
+        STD     DISBUF
+        LDD     #$7101
+        STD     DISBUF+2
+        CLRA
+        CLRB
+        STD     DISBUF+4
+KBLOOP  
+        LBSR    >GETKEY
+        PSHS    A
+        LBSR    >L7SEG
+        STA     DISBUF+4
+        PULS    A
+        LBSR    >R7SEG
+        STA     DISBUF+5
+        LBSR    >DISPRE 
+        BRA     KBLOOP
+
+* segments:
+*     _3_
+*  5 |   | 1
+*    |_0_| 
+*  6 |   | 2
+*    |_4_|
+* segments:
+
+*   U1: |_|   U2: |_|   U3:  _|  U4:    _|   U5:   |
+*        _|         |        _|          |        _|
+*     
+*    X: | |  Bpt: | |   P:   |_    L:   |   Ofs: |_|
+*   $36  _|   $26   |  $35    _|  $34    _|  $33  _
+*
+*  Cnt: | |  Go:  |_   Reg:  |   Mem:   |   Dec:      Inc:
+*   $32  _   $31   _    $30   _   $20        $10  _    $00
+*
+*          B:    C:    D:    E:    F:
+*          $25   $24   $23   $22   $21
+*          6:    7:    8:    9:     A:
+*          $15   $14   $13   $12   $11
+*    0:    1:    2:    3:    4:     5:  
+*    $06   $05   $04   $03   $02    $01
 
 
 *************************************
@@ -1397,6 +1448,9 @@ MABS    EQU $0760       ; P-segment for DISBUF+4 & DISBUF+5
 *  |   |   +---+---+--------------- Cx2 Mode
 *  |   +--------------------------- Interrupt Flag Cx2: b7=1 Interrupt occurred
 *  +------------------------------- Interrupt Flag Cx1: b7=1 Interrupt occurred
+*
+* Data Direction Register
+* 1=output, 0=input
 
 DISREG  EQU $A004       ; DRA-ACCES CLAVIER ET SEGMENTS      PIA DDR/PR A
 DISCNT  EQU $A005       ; ORB-COMMANDE CLAVIER ET AFFICHEUR  PIA DDR/PR B
