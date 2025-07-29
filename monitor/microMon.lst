@@ -311,7 +311,7 @@
  E153 8110                    CMPA #$10       ; NON, DECREMENTE CASE MEMOIRE?
  E155 2729                    BEQ EXDEC       ; OUI, EXECUTE LA FONCTION
  E157 8133                    CMPA #$33       ; TOUCHE OFFSET?
- E159 102705C0                LBEQ EXOFST     ; OUI, EXECUTE LA FONCTION
+ E159 102705C3                LBEQ EXOFST     ; OUI, EXECUTE LA FONCTION
  E15D 8D90                    BSR HEXCON      ; NON, FABRIQUER CODE HEXA TOUCHE
  E15F D6FF                    LDB <DISBUF+5   ; SHIFTER DISBUF
  E161 D7FE                    STB <DISBUF+4
@@ -374,7 +374,7 @@
  E1B7 97E4                    STA <SAVPOC     ; SAUVE POST OCTET
  E1B9 8601                    LDA #$01        ; ALLUME PROMPT
  E1BB 3410                    PSHS X
- E1BD 1700E9                  LBSR PROMPT
+ E1BD 1700EC                  LBSR PROMPT
  E1C0 17FE5D                  LBSR GETKEY
  E1C3 8133                    CMPA #$33       ; TOUCHE OFFSET?
  E1C5 2703                    BEQ OFFSET
@@ -389,11 +389,11 @@
  E1D8 1F89                    TFR A,B 
  E1DA C40D                    ANDB #$0D
  E1DC C10C                    CMPB #$0C       ; BRANCH COURT
- E1DE 1027054E                LBEQ OFPOCT
+ E1DE 10270551                LBEQ OFPOCT
  E1E2 C10D                    CMPB #$0D       ; BRANCH LONG
- E1E4 10270570                LBEQ EXLBCL 
+ E1E4 10270573                LBEQ EXLBCL 
  E1E8 17FE35          CALPOT  LBSR GETKEY
- E1EB 1700AF                  LBSR CLRDIS
+ E1EB 1700B2                  LBSR CLRDIS
  E1EE 8100                    CMPA #$00       ; TOUCHE INCREM?
  E1F0 2709                    BEQ PLUS        ; POSTOCTET>0
  E1F2 8110                    CMPA #$10       ; TOUCHE DECREM?
@@ -409,7 +409,7 @@
  E204 97FF                    STA <DISBUF+5   ; AFFICHE MOINS
  E206 8680                    LDA #$80
  E208 97E3            CONTI   STA <PLUSMS
- E20A 1601E8                  LBRA AFIVAL
+ E20A 1601EB                  LBRA AFIVAL
 
 
                       ****** PLACE UN POINT D'ARRET EN MEMOIRE ET SAUVE L'INSTRUCTION ******
@@ -442,90 +442,94 @@
 
  E22E 10CE07C0        RESTAR  LDS #PILE       ; INIT PILE
  E232 10FF07F8                STS >SAVPIL     ; ET POINTEUR X
- E236 8EE287                  LDX #ROUNMI
+ E236 8EE28A                  LDX #ROUNMI
  E239 BF07DD                  STX >SAVNMI
  E23C 10CE07A0        RPOINT  LDS #PILMON
  07                           SETDP $07
  E240 8607                    LDA #$07        ; INIT DP
  E242 1F8B                    TFR A,DP
- E244 8D57                    BSR CLRDIS      ; DISBUF=0
- E246 8601                    LDA #$01
- E248 97FA                    STA <DISBUF     ; CHARGEMENT PROMPT
- E24A 17FDD3                  LBSR GETKEY     ; ALLUME PROMPT
- E24D 8126                    CMPA #$26       ; TOUCHE BP ?
- E24F 27BC                    BEQ BPOINT      ; OUI, PLACER POINT D'ARRET
- E251 8130                    CMPA #$30       ; TOUCHE REGISTRE?
- E253 102700C8                LBEQ FONREG     ; OUI, EXECUTE FONCTION DE CHGT REG
- E257 8120                    CMPA #$20       ; TOUCHE=MEMORY?
- E259 1027FED2                LBEQ EXMEMO     ; OUI, EXECUTE ROUTINE
- E25D 8132                    CMPA #$32       ; NON, TOUCHE=CONTINUE?
- E25F 2722                    BEQ EXCN        ; OUI, EXECUTE ROUTINE
- E261 8134                    CMPA #$34       ; NOU, TOUCHE=LOAD?
- E263 1027038A                LBEQ EXLOAD     ; OUI, EXECUTE ROUTINE
- E267 8135                    CMPA #$35       ; NON, TOUCHE=PUNCH?
- E269 102703EC                LBEQ EXPUNC     ; OUI, EXECUTE ROUTINE
- E26D 8131                    CMPA #$31       ; NON, TOUCHE=GO?
- E26F 26CB                    BNE RPOINT      ; NON, RETOUR SCRUTATION
- E271 867C                    LDA #$7C        ; OUI, CHARGE G DS DERNIER DIGIT
- E273 97FF                    STA <DISBUF+5
- E275 17FE45                  LBSR BADDR      ; FABRIQUE ADRESSE DEPART
- E278 109EF8                  LDY <SAVPIL     ; DU PROGRAMME
- E27B AF2A                    STX 10,Y        ; ADRESSE PROG DANS PC
- E27D 8680                    LDA #$80
- E27F AAA4                    ORA ,Y          ; POSITIONNER PLAG E=1
- E281 A7A4                    STA ,Y          ; POUR PRENDRE EN COMPTE
- E283 10DEF8          EXCN    LDS <SAVPIL     ; TOUS LES REGISTRES
- E286 3B                      RTI             ; DEPART PROG UTILISATEUR
+                              
+ E244 1605C3                  LBRA D6809uP    ; Banner on display and wait for any key
+
+                      RRSTAR        
+ E247 8D57                    BSR CLRDIS      ; DISBUF=0
+ E249 8601                    LDA #$01
+ E24B 97FA                    STA <DISBUF     ; CHARGEMENT PROMPT
+ E24D 17FDD0                  LBSR GETKEY     ; ALLUME PROMPT
+ E250 8126                    CMPA #$26       ; TOUCHE BP ?
+ E252 27B9                    BEQ BPOINT      ; OUI, PLACER POINT D'ARRET
+ E254 8130                    CMPA #$30       ; TOUCHE REGISTRE?
+ E256 102700C8                LBEQ FONREG     ; OUI, EXECUTE FONCTION DE CHGT REG
+ E25A 8120                    CMPA #$20       ; TOUCHE=MEMORY?
+ E25C 1027FECF                LBEQ EXMEMO     ; OUI, EXECUTE ROUTINE
+ E260 8132                    CMPA #$32       ; NON, TOUCHE=CONTINUE?
+ E262 2722                    BEQ EXCN        ; OUI, EXECUTE ROUTINE
+ E264 8134                    CMPA #$34       ; NOU, TOUCHE=LOAD?
+ E266 1027038A                LBEQ EXLOAD     ; OUI, EXECUTE ROUTINE
+ E26A 8135                    CMPA #$35       ; NON, TOUCHE=PUNCH?
+ E26C 102703EC                LBEQ EXPUNC     ; OUI, EXECUTE ROUTINE
+ E270 8131                    CMPA #$31       ; NON, TOUCHE=GO?
+ E272 26C8                    BNE RPOINT      ; NON, RETOUR SCRUTATION
+ E274 867C                    LDA #$7C        ; OUI, CHARGE G DS DERNIER DIGIT
+ E276 97FF                    STA <DISBUF+5
+ E278 17FE42                  LBSR BADDR      ; FABRIQUE ADRESSE DEPART
+ E27B 109EF8                  LDY <SAVPIL     ; DU PROGRAMME
+ E27E AF2A                    STX 10,Y        ; ADRESSE PROG DANS PC
+ E280 8680                    LDA #$80
+ E282 AAA4                    ORA ,Y          ; POSITIONNER PLAG E=1
+ E284 A7A4                    STA ,Y          ; POUR PRENDRE EN COMPTE
+ E286 10DEF8          EXCN    LDS <SAVPIL     ; TOUS LES REGISTRES
+ E289 3B                      RTI             ; DEPART PROG UTILISATEUR
 
 
                       ****** INITIALISATION DE LA FONCTION NMI ******
 
 
- E287 A66A            ROUNMI  LDA 10,S
- E289 84F0                    ANDA #$F0
- E28B 81E0                    CMPA #$E0
- E28D 27AD                    BEQ RPOINT
- E28F 202E                    BRA RSWI
+ E28A A66A            ROUNMI  LDA 10,S
+ E28C 84F0                    ANDA #$F0
+ E28E 81E0                    CMPA #$E0
+ E290 27AA                    BEQ RPOINT
+ E292 202E                    BRA RSWI
 
 
                       ****** INITIALISATION DE LA FONCTION SWI2 ******
 
 
- E291 6A6B            RSWI2   DEC 11,S
- E293 6A6B                    DEC 11,S        ; POINTER PCR SUR INSTRUC.
- E295 FC07DF                  LDD >SASWI2
- E298 EDF80A                  STD [10,S]      ; REMETRE INSTRUCTION EN MEM.
- E29B 2022                    BRA RSWI        ; SCRUTER LES REGISTRES
+ E294 6A6B            RSWI2   DEC 11,S
+ E296 6A6B                    DEC 11,S        ; POINTER PCR SUR INSTRUC.
+ E298 FC07DF                  LDD >SASWI2
+ E29B EDF80A                  STD [10,S]      ; REMETRE INSTRUCTION EN MEM.
+ E29E 2022                    BRA RSWI        ; SCRUTER LES REGISTRES
 
 
                       ************** REMISE A ZERO DE TOUT DISBUF **************
 
 
- E29D 3456            CLRDIS  PSHS U,X,B,A
- E29F 338D0011                LEAU INTER2,PCR
- E2A3 3440                    PSHS U
- E2A5 4F                      CLRA            ; TOUT DISBUF=0
- E2A6 B70760                  STA MABS        ; clear decimal point flag
- E2A9 C606            PROMPT  LDB #$06
- E2AB 8E07FA                  LDX #DISBUF
- E2AE A780            ENCORE  STA ,X+
- E2B0 5A                      DECB
- E2B1 26FB                    BNE ENCORE
- E2B3 39                      RTS
+ E2A0 3456            CLRDIS  PSHS U,X,B,A
+ E2A2 338D0011                LEAU INTER2,PCR
+ E2A6 3440                    PSHS U
+ E2A8 4F                      CLRA            ; TOUT DISBUF=0
+ E2A9 B70760                  STA MABS        ; clear decimal point flag
+ E2AC C606            PROMPT  LDB #$06
+ E2AE 8E07FA                  LDX #DISBUF
+ E2B1 A780            ENCORE  STA ,X+
+ E2B3 5A                      DECB
+ E2B4 26FB                    BNE ENCORE
+ E2B6 39                      RTS
                               
- E2B4 35D6            INTER2  PULS PC,U,X,B,A
+ E2B7 35D6            INTER2  PULS PC,U,X,B,A
 
 
                       * CODAGE DES REGISTRES DU MPU *
                       *
                       *              C   A   B   D
- E2B6 786F7557        REGTBL  FCB $78,$6F,$75,$57
+ E2B9 786F7557        REGTBL  FCB $78,$6F,$75,$57
                       *
                       *              X   Y   U   P
- E2BA 6737766B                FCB $67,$37,$76,$6B
+ E2BD 6737766B                FCB $67,$37,$76,$6B
                       *
                       *             S
- E2BE 3D                      FCB $3D
+ E2C1 3D                      FCB $3D
 
 
                       *************** SOFTWARE INTERRUPT ROUTINE *****************************
@@ -535,431 +539,431 @@
 
 
  07                           SETDP $07
- E2BF 8607            RSWI    LDA #$07
- E2C1 1F8B                    TFR A,DP
- E2C3 10DFF8                  STS <SAVPIL
- E2C6 10CE07A0                LDS #PILMON
- E2CA 8DD1                    BSR CLRDIS      ; TOUT DISBUF=00
- E2CC C602                    LDB #$02        ; COMPTEUR REGISTRES
- E2CE 9EF8                    LDX <SAVPIL     ; INDEX DE CHARGEMENT DES REGISTRES
- E2D0 318CE3                  LEAY REGTBL,PCR ; Y=REGTBL
- E2D3 338D0035        TOUREG  LEAU >INTER,PCR
- E2D7 3440                    PSHS U          ; PC SAUVE EN PILE
- E2D9 A6A0                    LDA ,Y+         ; A=VAL REGISTRE
- E2DB 97FF                    STA <DISBUF+5   ; REGISTRE DS DERNIER DIGIT
- E2DD 108CE2BF                CMPY #RSWI      ; FIN TABLEAU?
- E2E1 2603                    BNE SUITER      ; NON
- E2E3 8E07F8                  LDX #SAVPIL     ; OUI, X POINTE SAVPIL
- E2E6 108CE2BA        SUITER  CMPY #REGTBL+4  ; 1iere MOITIER TEBLEAU?
- E2EA 230E                    BLS AF2DIG      ; OUI, 1iere MOITIER
- E2EC A684                    LDA ,X          ; NON, 2ieme MOITIER
- E2EE 17FE13                  LBSR L7SEG      ; AFFICHE CONTENU
- E2F1 97FA                    STA <DISBUF     ; SUR 4 DIGITS
- E2F3 A680                    LDA ,X+ 
- E2F5 17FE10                  LBSR R7SEG
- E2F8 97FB                    STA <DISBUF+1
- E2FA A684            AF2DIG  LDA ,X          ; 1iere MOITIER
- E2FC 17FE05                  LBSR L7SEG      ; AFFICHE COTENU SUR
- E2FF 97FC                    STA <DISBUF+2   ; 2 DIGITS
- E301 A680                    LDA ,X+ 
- E303 17FE02                  LBSR R7SEG
- E306 97FD                    STA <DISBUF+3
- E308 17FD15                  LBSR GETKEY     ; ALLUMER AFFICHEURS
- E30B 39                      RTS             ; RETOUR A CHANGEMENT DE REG
+ E2C2 8607            RSWI    LDA #$07
+ E2C4 1F8B                    TFR A,DP
+ E2C6 10DFF8                  STS <SAVPIL
+ E2C9 10CE07A0                LDS #PILMON
+ E2CD 8DD1                    BSR CLRDIS      ; TOUT DISBUF=00
+ E2CF C602                    LDB #$02        ; COMPTEUR REGISTRES
+ E2D1 9EF8                    LDX <SAVPIL     ; INDEX DE CHARGEMENT DES REGISTRES
+ E2D3 318CE3                  LEAY REGTBL,PCR ; Y=REGTBL
+ E2D6 338D0035        TOUREG  LEAU >INTER,PCR
+ E2DA 3440                    PSHS U          ; PC SAUVE EN PILE
+ E2DC A6A0                    LDA ,Y+         ; A=VAL REGISTRE
+ E2DE 97FF                    STA <DISBUF+5   ; REGISTRE DS DERNIER DIGIT
+ E2E0 108CE2C2                CMPY #RSWI      ; FIN TABLEAU?
+ E2E4 2603                    BNE SUITER      ; NON
+ E2E6 8E07F8                  LDX #SAVPIL     ; OUI, X POINTE SAVPIL
+ E2E9 108CE2BD        SUITER  CMPY #REGTBL+4  ; 1iere MOITIER TEBLEAU?
+ E2ED 230E                    BLS AF2DIG      ; OUI, 1iere MOITIER
+ E2EF A684                    LDA ,X          ; NON, 2ieme MOITIER
+ E2F1 17FE10                  LBSR L7SEG      ; AFFICHE CONTENU
+ E2F4 97FA                    STA <DISBUF     ; SUR 4 DIGITS
+ E2F6 A680                    LDA ,X+ 
+ E2F8 17FE0D                  LBSR R7SEG
+ E2FB 97FB                    STA <DISBUF+1
+ E2FD A684            AF2DIG  LDA ,X          ; 1iere MOITIER
+ E2FF 17FE02                  LBSR L7SEG      ; AFFICHE COTENU SUR
+ E302 97FC                    STA <DISBUF+2   ; 2 DIGITS
+ E304 A680                    LDA ,X+ 
+ E306 17FDFF                  LBSR R7SEG
+ E309 97FD                    STA <DISBUF+3
+ E30B 17FD12                  LBSR GETKEY     ; ALLUMER AFFICHEURS
+ E30E 39                      RTS             ; RETOUR A CHANGEMENT DE REG
                               
- E30C 5A              INTER   DECB 
- E30D 2F1F                    BLE SCRUDE      ; DECREMENTE OU INCREMENTE ? 
- E30F C101                    CMPB #$01       ; 1er REGISTRE =CCR?
- E311 2715                    BEQ TSTDEC      ; OUI, SCUTER r
- E313 8100            REGSUI  CMPA #$00       ; REGISTRE SUIVANT?
- E315 1026FF23                LBNE RPOINT     ; NON, RETOUR PROMPT
- E319 108CE2BF                CMPY #RSWI      ; OUI, FIN TABLEAU?
- E31D 26B4                    BNE TOUREG      ; NON, CONTINUER REGISTRES
- E31F 17FF7B          FONREG  LBSR CLRDIS
- E322 8641                    LDA #$41        ; AFFICHER r
- E324 97FE                    STA <DISBUF+4
- E326 203F                    BRA EXREGI      ; SCRUTER REGISTRES
+ E30F 5A              INTER   DECB 
+ E310 2F1F                    BLE SCRUDE      ; DECREMENTE OU INCREMENTE ? 
+ E312 C101                    CMPB #$01       ; 1er REGISTRE =CCR?
+ E314 2715                    BEQ TSTDEC      ; OUI, SCUTER r
+ E316 8100            REGSUI  CMPA #$00       ; REGISTRE SUIVANT?
+ E318 1026FF20                LBNE RPOINT     ; NON, RETOUR PROMPT
+ E31C 108CE2C2                CMPY #RSWI      ; OUI, FIN TABLEAU?
+ E320 26B4                    BNE TOUREG      ; NON, CONTINUER REGISTRES
+ E322 17FF7B          FONREG  LBSR CLRDIS
+ E325 8641                    LDA #$41        ; AFFICHER r
+ E327 97FE                    STA <DISBUF+4
+ E329 203F                    BRA EXREGI      ; SCRUTER REGISTRES
                               
- E328 8110            TSTDEC  CMPA #$10
- E32A 27F3                    BEQ FONREG
- E32C 20E5                    BRA REGSUI 
+ E32B 8110            TSTDEC  CMPA #$10
+ E32D 27F3                    BEQ FONREG
+ E32F 20E5                    BRA REGSUI 
                               
- E32E 8110            SCRUDE  CMPA #$10       ; DECREMENTATION DEMANDEE?
- E330 2702                    BEQ REGPRE      ; OUI, PASSER AU REGISTRE PRECEDENT
- E332 20DF                    BRA REGSUI      ; NON, PASSER AU REGISTRE SUIVANT
+ E331 8110            SCRUDE  CMPA #$10       ; DECREMENTATION DEMANDEE?
+ E333 2702                    BEQ REGPRE      ; OUI, PASSER AU REGISTRE PRECEDENT
+ E335 20DF                    BRA REGSUI      ; NON, PASSER AU REGISTRE SUIVANT
                               
- E334 313E            REGPRE  LEAY -2,Y       ; REGTBL POINTE VERS REGISTRE PRECEDENT
- E336 17FF64                  LBSR CLRDIS     ; ETEINDRE AFFICHAGE
- E339 108CE2B5                CMPY #REGTBL-1  ; DEBUT TABLEAU DES REGISTRES?
- E33D 27E0                    BEQ FONREG      ; OUI, RETOUR FONCTION REGISTRE
- E33F 108CE2BD                CMPY #REGTBL+7  ; POINTE SUR PC?
- E343 271B                    BEQ REGPC       ; OUI, ALLUMER LE CONTENU
- E345 10BCE2B9                CMPY REGTBL+3   ; REGISTRES 8 BITS?
- E349 270B                    BEQ RE8BIT
- E34B 10BCE2B8                CMPY REGTBL+2
- E34F 230A                    BLS REBIT8
- E351 301C                    LEAX -4,X       ; REGISTRE 16 BITS X,Y,U,P,S
- E353 16FF7D                  LBRA TOUREG     ; VISUALISER CONTENU
- E356 301D            RE8BIT  LEAX -3,X       ; REGISTRES 8 BITS D,B,A,C
- E358 16FF78                  LBRA TOUREG     ; VISUALISE CONTENU
- E35B 301E            REBIT8  LEAX -2,X       ; REGISTRES 8 BITS B,A,C
- E35D 16FF73                  LBRA TOUREG     ; VISUALISER CONTENU
- E360 9EF8            REGPC   LDX <SAVPIL
- E362 300A                    LEAX 10,X       ; X POINTE SUR PC
- E364 16FF6C                  LBRA TOUREG
+ E337 313E            REGPRE  LEAY -2,Y       ; REGTBL POINTE VERS REGISTRE PRECEDENT
+ E339 17FF64                  LBSR CLRDIS     ; ETEINDRE AFFICHAGE
+ E33C 108CE2B8                CMPY #REGTBL-1  ; DEBUT TABLEAU DES REGISTRES?
+ E340 27E0                    BEQ FONREG      ; OUI, RETOUR FONCTION REGISTRE
+ E342 108CE2C0                CMPY #REGTBL+7  ; POINTE SUR PC?
+ E346 271B                    BEQ REGPC       ; OUI, ALLUMER LE CONTENU
+ E348 10BCE2BC                CMPY REGTBL+3   ; REGISTRES 8 BITS?
+ E34C 270B                    BEQ RE8BIT
+ E34E 10BCE2BB                CMPY REGTBL+2
+ E352 230A                    BLS REBIT8
+ E354 301C                    LEAX -4,X       ; REGISTRE 16 BITS X,Y,U,P,S
+ E356 16FF7D                  LBRA TOUREG     ; VISUALISER CONTENU
+ E359 301D            RE8BIT  LEAX -3,X       ; REGISTRES 8 BITS D,B,A,C
+ E35B 16FF78                  LBRA TOUREG     ; VISUALISE CONTENU
+ E35E 301E            REBIT8  LEAX -2,X       ; REGISTRES 8 BITS B,A,C
+ E360 16FF73                  LBRA TOUREG     ; VISUALISER CONTENU
+ E363 9EF8            REGPC   LDX <SAVPIL
+ E365 300A                    LEAX 10,X       ; X POINTE SUR PC
+ E367 16FF6C                  LBRA TOUREG
 
 
                       ****** PERMET DE CHANGER LE CONTENU D'UN REG LORS D'UN NMI ou SWI ******
 
 
- E367 318DFF4B        EXREGI  LEAY REGTBL,PCR
- E36B 9EF8                    LDX <SAVPIL
- E36D 17FCB0                  LBSR GETKEY     ; ALLUMER REG
- E370 8130                    CMPA #$30       ; REG DEMANDE?
- E372 1027FEC6                LBEQ RPOINT     ; OUI, CRUTER TOUCHES
- E376 8106                    CMPA #$06       ; CCR?
- E378 273B                    BEQ R8BREG      ; OUI
- E37A 3001                    LEAX 1,X
- E37C 3121                    LEAY 1,Y        ; REG SUIVANT
- E37E 8105                    CMPA #$05       ; ACCA?
- E380 2733                    BEQ R8BREG      ; OUI
- E382 3001                    LEAX 1,X
- E384 3121                    LEAY 1,Y
- E386 8104                    CMPA #$04       ; ACCB?
- E388 272B                    BEQ R8BREG      ; OUI
- E38A 3001                    LEAX 1,X
- E38C 3121                    LEAY 1,Y
- E38E 8103                    CMPA #$03       ; DPR?
- E390 2723                    BEQ R8BREG      ; OUI
- E392 3001                    LEAX 1,X
- E394 3121                    LEAY 1,Y
- E396 8102                    CMPA #$02       ; REG X?
- E398 2726                    BEQ REG16B      ; OUI
- E39A 3002                    LEAX 2,X
- E39C 3121                    LEAY 1,Y
- E39E 8101                    CMPA #$01       ; REG Y?
- E3A0 271E                    BEQ REG16B      ; OUI
- E3A2 3002                    LEAX 2,X
- E3A4 3121                    LEAY 1,Y 
- E3A6 8115                    CMPA #$15       ; REG U?
- E3A8 2716                    BEQ REG16B      ; OUI
- E3AA 3002                    LEAX 2,X
- E3AC 3121                    LEAY 1,Y
- E3AE 8114                    CMPA #$14       ; REG PCR?
- E3B0 270E                    BEQ REG16B      ; OUI
- E3B2 16FE87                  LBRA RPOINT
- E3B5 A6A4            R8BREG  LDA ,Y
- E3B7 97FF                    STA <DISBUF+5   ; AFFICHE TYPE DE REG
- E3B9 17FF3E                  LBSR AF2DIG     ; AFFICHE LE CONTENU DU REG 8BITS
- E3BC 301F                    LEAX -1,X
- E3BE 200B                    BRA CHANG8      ; CHANGER LE CONTENU
- E3C0 A6A4            REG16B  LDA ,Y
- E3C2 97FF                    STA <DISBUF+5   ; AFFICHE TYPE DE REG
- E3C4 17FF25                  LBSR SUITER+6   ; AFFICHE LE CONTENU DU REGISTRE 16BITS
- E3C7 301E                    LEAX -2,X
- E3C9 2015                    BRA CHAN16      ; CHANGER SON CONTENU
- E3CB 3430            CHANG8  PSHS Y,X        ; SAUVEGARDE DES POINTEURS
- E3CD 8E07FC                  LDX #DISBUF+2
- E3D0 108E0002                LDY #$02
- E3D4 1700EF                  LBSR CHTDON     ; SOUS PROG DE CHGT DES DONNEES
- E3D7 3530                    PULS Y,X
- E3D9 96E5                    LDA <PRESEH 
- E3DB A784                    STA ,X          ; NELLE DONNEE EN PILE
- E3DD 16FF3F                  LBRA FONREG     ; SCRUTER LES REGISTRES
+ E36A 318DFF4B        EXREGI  LEAY REGTBL,PCR
+ E36E 9EF8                    LDX <SAVPIL
+ E370 17FCAD                  LBSR GETKEY     ; ALLUMER REG
+ E373 8130                    CMPA #$30       ; REG DEMANDE?
+ E375 1027FEC3                LBEQ RPOINT     ; OUI, CRUTER TOUCHES
+ E379 8106                    CMPA #$06       ; CCR?
+ E37B 273B                    BEQ R8BREG      ; OUI
+ E37D 3001                    LEAX 1,X
+ E37F 3121                    LEAY 1,Y        ; REG SUIVANT
+ E381 8105                    CMPA #$05       ; ACCA?
+ E383 2733                    BEQ R8BREG      ; OUI
+ E385 3001                    LEAX 1,X
+ E387 3121                    LEAY 1,Y
+ E389 8104                    CMPA #$04       ; ACCB?
+ E38B 272B                    BEQ R8BREG      ; OUI
+ E38D 3001                    LEAX 1,X
+ E38F 3121                    LEAY 1,Y
+ E391 8103                    CMPA #$03       ; DPR?
+ E393 2723                    BEQ R8BREG      ; OUI
+ E395 3001                    LEAX 1,X
+ E397 3121                    LEAY 1,Y
+ E399 8102                    CMPA #$02       ; REG X?
+ E39B 2726                    BEQ REG16B      ; OUI
+ E39D 3002                    LEAX 2,X
+ E39F 3121                    LEAY 1,Y
+ E3A1 8101                    CMPA #$01       ; REG Y?
+ E3A3 271E                    BEQ REG16B      ; OUI
+ E3A5 3002                    LEAX 2,X
+ E3A7 3121                    LEAY 1,Y 
+ E3A9 8115                    CMPA #$15       ; REG U?
+ E3AB 2716                    BEQ REG16B      ; OUI
+ E3AD 3002                    LEAX 2,X
+ E3AF 3121                    LEAY 1,Y
+ E3B1 8114                    CMPA #$14       ; REG PCR?
+ E3B3 270E                    BEQ REG16B      ; OUI
+ E3B5 16FE84                  LBRA RPOINT
+ E3B8 A6A4            R8BREG  LDA ,Y
+ E3BA 97FF                    STA <DISBUF+5   ; AFFICHE TYPE DE REG
+ E3BC 17FF3E                  LBSR AF2DIG     ; AFFICHE LE CONTENU DU REG 8BITS
+ E3BF 301F                    LEAX -1,X
+ E3C1 200B                    BRA CHANG8      ; CHANGER LE CONTENU
+ E3C3 A6A4            REG16B  LDA ,Y
+ E3C5 97FF                    STA <DISBUF+5   ; AFFICHE TYPE DE REG
+ E3C7 17FF25                  LBSR SUITER+6   ; AFFICHE LE CONTENU DU REGISTRE 16BITS
+ E3CA 301E                    LEAX -2,X
+ E3CC 2015                    BRA CHAN16      ; CHANGER SON CONTENU
+ E3CE 3430            CHANG8  PSHS Y,X        ; SAUVEGARDE DES POINTEURS
+ E3D0 8E07FC                  LDX #DISBUF+2
+ E3D3 108E0002                LDY #$02
+ E3D7 1700EF                  LBSR CHTDON     ; SOUS PROG DE CHGT DES DONNEES
+ E3DA 3530                    PULS Y,X
+ E3DC 96E5                    LDA <PRESEH 
+ E3DE A784                    STA ,X          ; NELLE DONNEE EN PILE
+ E3E0 16FF3F                  LBRA FONREG     ; SCRUTER LES REGISTRES
 
 
- E3E0 3430            CHAN16  PSHS Y,X
- E3E2 8E07FA                  LDX #DISBUF
- E3E5 108E0006                LDY #$06
- E3E9 1700DA                  LBSR CHTDON
- E3EC 3530                    PULS Y,X
- E3EE DCE5                    LDD <PRESEH
- E3F0 ED84                    STD ,X
- E3F2 16FF2A                  LBRA FONREG
+ E3E3 3430            CHAN16  PSHS Y,X
+ E3E5 8E07FA                  LDX #DISBUF
+ E3E8 108E0006                LDY #$06
+ E3EC 1700DA                  LBSR CHTDON
+ E3EF 3530                    PULS Y,X
+ E3F1 DCE5                    LDD <PRESEH
+ E3F3 ED84                    STD ,X
+ E3F5 16FF2A                  LBRA FONREG
 
 
                       ****** AFFICHE VAL DU POST OCTET,EFFECTUE LA CONVERSION ******
                       ****** DECIMALE-HEXADECIMALE ET PLACE LE RESLT EN MEMRE ******
 
 
- E3F5 3001            AFIVAL  LEAX 1,X
- E3F7 3410                    PSHS X
- E3F9 17FC24                  LBSR GETKEY
- E3FC 8E07FA                  LDX #DISBUF
- E3FF 108E0006                LDY #$06
- E403 1700C0                  LBSR CHTDON
- E406 17FC17                  LBSR GETKEY
- E409 1700C0                  LBSR MSBDON
- E40C 0FE7                    CLR <PRELOW
- E40E D7E8                    STB <PRELOW+1
- E410 3510                    PULS X
- E412 17FC0B                  LBSR GETKEY
- E415 8131                    CMPA #$31
- E417 2703                    BEQ CALCON
- E419 16FD1C                  LBRA REMEMO
+ E3F8 3001            AFIVAL  LEAX 1,X
+ E3FA 3410                    PSHS X
+ E3FC 17FC21                  LBSR GETKEY
+ E3FF 8E07FA                  LDX #DISBUF
+ E402 108E0006                LDY #$06
+ E406 1700C0                  LBSR CHTDON
+ E409 17FC14                  LBSR GETKEY
+ E40C 1700C0                  LBSR MSBDON
+ E40F 0FE7                    CLR <PRELOW
+ E411 D7E8                    STB <PRELOW+1
+ E413 3510                    PULS X
+ E415 17FC08                  LBSR GETKEY
+ E418 8131                    CMPA #$31
+ E41A 2703                    BEQ CALCON
+ E41C 16FD19                  LBRA REMEMO
                               
- E41C 17FE7E          CALCON  LBSR CLRDIS
- E41F 1700EA                  LBSR DECHEX     ; CONVERSION DEC-HEXA
- E422 DCE7                    LDD <PRELOW
- E424 4D                      TSTA            ; A-0?
- E425 260B                    BNE TESTST      ; NON, VAL 16BITS?
- E427 58                      ASLB
- E428 251B                    BCS TSTSUI      ; VAL 16BITS?
+ E41F 17FE7E          CALCON  LBSR CLRDIS
+ E422 1700EA                  LBSR DECHEX     ; CONVERSION DEC-HEXA
+ E425 DCE7                    LDD <PRELOW
+ E427 4D                      TSTA            ; A-0?
+ E428 260B                    BNE TESTST      ; NON, VAL 16BITS?
  E42A 58                      ASLB
- E42B 2552                    BCS INTR08      ; VAL 16BITS?
+ E42B 251B                    BCS TSTSUI      ; VAL 16BITS?
  E42D 58                      ASLB
- E42E 254F                    BCS INTR08      ; VAL 8BITS?
- E430 201A                    BRA INTR05      ; VAL 5BITS?
+ E42E 2552                    BCS INTR08      ; VAL 16BITS?
+ E430 58                      ASLB
+ E431 254F                    BCS INTR08      ; VAL 8BITS?
+ E433 201A                    BRA INTR05      ; VAL 5BITS?
                               
- E432 8180            TESTST  CMPA #$80       ; A>80?
- E434 2208                    BHI ERREUR      ; OUI, AFFICHE ERREUR
- E436 2702                    BEQ COMPAB
- E438 2066                    BRA INTR16      ; NON, VAL 16 BITS
+ E435 8180            TESTST  CMPA #$80       ; A>80?
+ E437 2208                    BHI ERREUR      ; OUI, AFFICHE ERREUR
+ E439 2702                    BEQ COMPAB
+ E43B 2066                    BRA INTR16      ; NON, VAL 16 BITS
                               
- E43A C100            COMPAB  CMPB #$00
- E43C 2762                    BEQ INTR16
- E43E 301F            ERREUR  LEAX -1,X
- E440 1F12            EREURE  TFR X,Y
- E442 160363                  LBRA CLIGNO
+ E43D C100            COMPAB  CMPB #$00
+ E43F 2762                    BEQ INTR16
+ E441 301F            ERREUR  LEAX -1,X
+ E443 1F12            EREURE  TFR X,Y
+ E445 160363                  LBRA CLIGNO
                               
- E445 56              TSTSUI  RORB
- E446 C180                    CMPB #$80       ; B>80?
- E448 2256                    BHI INTR16      ; OUI, VAL 16BITS
- E44A 2033                    BRA INTR08      ; NON, VAL 8BITS
- E44C 58              INTR05  ASLB
- E44D 2420                    BCC POSITIF
- E44F DCE7                    LDD <PRELOW
- E451 A684                    LDA ,X          ; POST DS A, VAL DS B
- E453 C110                    CMPB #$10       ; B>10?
- E455 2205                    BHI TSTPOC      ; OUI, TESTER POST OCTET
- E457 48                      ASLA
- E458 2407                    BCC POCPOS
- E45A 2023                    BRA INTR08
+ E448 56              TSTSUI  RORB
+ E449 C180                    CMPB #$80       ; B>80?
+ E44B 2256                    BHI INTR16      ; OUI, VAL 16BITS
+ E44D 2033                    BRA INTR08      ; NON, VAL 8BITS
+ E44F 58              INTR05  ASLB
+ E450 2420                    BCC POSITIF
+ E452 DCE7                    LDD <PRELOW
+ E454 A684                    LDA ,X          ; POST DS A, VAL DS B
+ E456 C110                    CMPB #$10       ; B>10?
+ E458 2205                    BHI TSTPOC      ; OUI, TESTER POST OCTET
+ E45A 48                      ASLA
+ E45B 2407                    BCC POCPOS
+ E45D 2023                    BRA INTR08
                               
- E45C 48              TSTPOC  ASLA
- E45D 24E1                    BCC EREURE      ; POST INCORRECT
- E45F 201E                    BRA INTR08      ; VAL 8BITS POSSIBLE
+ E45F 48              TSTPOC  ASLA
+ E460 24E1                    BCC EREURE      ; POST INCORRECT
+ E462 201E                    BRA INTR08      ; VAL 8BITS POSSIBLE
                               
- E461 08E3            POCPOS  ASL <PLUSMS     ; POSITIF?
- E463 241A                    BCC INTR08      ; VAL 8BITS
- E465 A684            CHPOST  LDA ,X
- E467 3404                    PSHS B
- E469 ABE0                    ADDA ,S+
- E46B A784                    STA ,X
- E46D 2025                    BRA STODN1
+ E464 08E3            POCPOS  ASL <PLUSMS     ; POSITIF?
+ E466 241A                    BCC INTR08      ; VAL 8BITS
+ E468 A684            CHPOST  LDA ,X
+ E46A 3404                    PSHS B
+ E46C ABE0                    ADDA ,S+
+ E46E A784                    STA ,X
+ E470 2025                    BRA STODN1
                               
- E46F DCE7            POSITIF LDD <PRELOW
- E471 A684                    LDA ,X
- E473 48                      ASLA
- E474 25CA                    BCS EREURE
- E476 08E3                    ASL <PLUSMS
- E478 24EB                    BCC CHPOST      ; SI POSITIF , CHARGER
- E47A 50                      NEGB
- E47B C41F                    ANDB #$1F
- E47D 20E6                    BRA CHPOST      ; SI NEG, CHARGER
+ E472 DCE7            POSITIF LDD <PRELOW
+ E474 A684                    LDA ,X
+ E476 48                      ASLA
+ E477 25CA                    BCS EREURE
+ E479 08E3                    ASL <PLUSMS
+ E47B 24EB                    BCC CHPOST      ; SI POSITIF , CHARGER
+ E47D 50                      NEGB
+ E47E C41F                    ANDB #$1F
+ E480 20E6                    BRA CHPOST      ; SI NEG, CHARGER
                               
- E47F DCE7            INTR08  LDD <PRELOW
- E481 A680                    LDA ,X+
- E483 49                      ROLA
- E484 24B8                    BCC ERREUR      ; SI DIFFERENT 8BITS ERREUR
- E486 46                      RORA
- E487 840F                    ANDA #$0F
- E489 8108                    CMPA #$08       ; POST OCTET 8BITS
- E48B 26B1                    BNE ERREUR
- E48D 08E3                    ASL <PLUSMS     ; OUI, POSITIF?
- E48F 2409                    BCC STADON      ; OUI STOCKER DONNEE
- E491 50                      NEGB
- E492 E784            STODON  STB ,X
- E494 17034E          STODN1  LBSR AFFIAD+2
- E497 16FC9E                  LBRA REMEMO
- E49A C180            STADON  CMPB #$80
- E49C 27A0            RCR     BEQ ERREUR
- E49E 20F2                    BRA STODON
+ E482 DCE7            INTR08  LDD <PRELOW
+ E484 A680                    LDA ,X+
+ E486 49                      ROLA
+ E487 24B8                    BCC ERREUR      ; SI DIFFERENT 8BITS ERREUR
+ E489 46                      RORA
+ E48A 840F                    ANDA #$0F
+ E48C 8108                    CMPA #$08       ; POST OCTET 8BITS
+ E48E 26B1                    BNE ERREUR
+ E490 08E3                    ASL <PLUSMS     ; OUI, POSITIF?
+ E492 2409                    BCC STADON      ; OUI STOCKER DONNEE
+ E494 50                      NEGB
+ E495 E784            STODON  STB ,X
+ E497 17034E          STODN1  LBSR AFFIAD+2
+ E49A 16FC9B                  LBRA REMEMO
+ E49D C180            STADON  CMPB #$80
+ E49F 27A0            RCR     BEQ ERREUR
+ E4A1 20F2                    BRA STODON
                               
- E4A0 A680            INTR16  LDA ,X+
- E4A2 49                      ROLA
- E4A3 2499                    BCC ERREUR      ; DIFF 16BITS
- E4A5 46                      RORA
- E4A6 840F                    ANDA #$0F
- E4A8 8109                    CMPA #$09       ; 16BITS?
- E4AA 2692                    BNE ERREUR
- E4AC DCE7                    LDD <PRELOW
- E4AE 08E3                    ASL <PLUSMS     ; POSITIF?
- E4B0 2409                    BCC COMPAR      ; OUI
- E4B2 43                      COMA
- E4B3 53                      COMB
- E4B4 C30001                  ADDD #$01
- E4B7 ED84            CHAR16  STD ,X
- E4B9 20D9                    BRA STODN1
- E4BB 10838000        COMPAR  CMPD #$8000
- E4BF 27DB                    BEQ RCR
- E4C1 20F4                    BRA CHAR16
+ E4A3 A680            INTR16  LDA ,X+
+ E4A5 49                      ROLA
+ E4A6 2499                    BCC ERREUR      ; DIFF 16BITS
+ E4A8 46                      RORA
+ E4A9 840F                    ANDA #$0F
+ E4AB 8109                    CMPA #$09       ; 16BITS?
+ E4AD 2692                    BNE ERREUR
+ E4AF DCE7                    LDD <PRELOW
+ E4B1 08E3                    ASL <PLUSMS     ; POSITIF?
+ E4B3 2409                    BCC COMPAR      ; OUI
+ E4B5 43                      COMA
+ E4B6 53                      COMB
+ E4B7 C30001                  ADDD #$01
+ E4BA ED84            CHAR16  STD ,X
+ E4BC 20D9                    BRA STODN1
+ E4BE 10838000        COMPAR  CMPD #$8000
+ E4C2 27DB                    BEQ RCR
+ E4C4 20F4                    BRA CHAR16
 
 
                       ****** CHANGEMENT DE CONTENU DES REGISTRES PRESERVES EN PILE ******
 
 
- E4C3 17FB5A          CHTCHI  LBSR GETKEY     ; SCRUTER CHIFFRES
- E4C6 338D000D        CHTDON  LEAU >INTVAL,PCR
- E4CA 3440                    PSHS U
- E4CC 17FC20          MSBDON  LBSR HEXCON     ; CONVERTI CHIFFRE EN HEXA
- E4CF 1F89                    TFR A,B
- E4D1 17FC34                  LBSR R7SEG
- E4D4 A780                    STA ,X+         ; ENVOI CHIFFRE SUR AFFICHEUR
- E4D6 39                      RTS
+ E4C6 17FB57          CHTCHI  LBSR GETKEY     ; SCRUTER CHIFFRES
+ E4C9 338D000D        CHTDON  LEAU >INTVAL,PCR
+ E4CD 3440                    PSHS U
+ E4CF 17FC1D          MSBDON  LBSR HEXCON     ; CONVERTI CHIFFRE EN HEXA
+ E4D2 1F89                    TFR A,B
+ E4D4 17FC31                  LBSR R7SEG
+ E4D7 A780                    STA ,X+         ; ENVOI CHIFFRE SUR AFFICHEUR
+ E4D9 39                      RTS
                               
- E4D7 3404            INTVAL  PSHS B
- E4D9 313F                    LEAY -1,Y
- E4DB 1F20                    TFR Y,D         ; 1 OU 5 OU 3
- E4DD 54                      LSRB 
- E4DE 251A                    BCS DEPLAC
- E4E0 108C0002        SUITEP  CMPY #$02       ; DISBUF+0
- E4E4 270D                    BEQ CAL16       ; REGISTRE 16BITS
- E4E6 1F20                    TFR Y,D         ; 0 OU 4
- E4E8 54                      LSRB
- E4E9 2419                    BCC CALCU8      ; REGISTRE 8BITS
- E4EB 108C0000        SUI     CMPY #$00
- E4EF 2ED2                    BGT CHTCHI      ; CHIFFRE SUIVANT
- E4F1 2706                    BEQ RETOUR
- E4F3 3502            CAL16   PULS A
- E4F5 ABE0                    ADDA ,S+
- E4F7 97E6                    STA <PRESEL
- E4F9 39              RETOUR  RTS
+ E4DA 3404            INTVAL  PSHS B
+ E4DC 313F                    LEAY -1,Y
+ E4DE 1F20                    TFR Y,D         ; 1 OU 5 OU 3
+ E4E0 54                      LSRB 
+ E4E1 251A                    BCS DEPLAC
+ E4E3 108C0002        SUITEP  CMPY #$02       ; DISBUF+0
+ E4E7 270D                    BEQ CAL16       ; REGISTRE 16BITS
+ E4E9 1F20                    TFR Y,D         ; 0 OU 4
+ E4EB 54                      LSRB
+ E4EC 2419                    BCC CALCU8      ; REGISTRE 8BITS
+ E4EE 108C0000        SUI     CMPY #$00
+ E4F2 2ED2                    BGT CHTCHI      ; CHIFFRE SUIVANT
+ E4F4 2706                    BEQ RETOUR
+ E4F6 3502            CAL16   PULS A
+ E4F8 ABE0                    ADDA ,S+
+ E4FA 97E6                    STA <PRESEL
+ E4FC 39              RETOUR  RTS
 
- E4FA 3502            DEPLAC  PULS A
- E4FC 48                      ASLA
- E4FD 48                      ASLA
- E4FE 48                      ASLA
+ E4FD 3502            DEPLAC  PULS A
  E4FF 48                      ASLA
- E500 3402                    PSHS A
- E502 20DC                    BRA SUITEP
+ E500 48                      ASLA
+ E501 48                      ASLA
+ E502 48                      ASLA
+ E503 3402                    PSHS A
+ E505 20DC                    BRA SUITEP
                               
- E504 3502            CALCU8  PULS A
- E506 ABE0                    ADDA ,S+
- E508 97E5                    STA <PRESEH
- E50A 20DF                    BRA SUI
+ E507 3502            CALCU8  PULS A
+ E509 ABE0                    ADDA ,S+
+ E50B 97E5                    STA <PRESEH
+ E50D 20DF                    BRA SUI
 
 
                       ****** SOUS-PROG DE CONVERSION DECIMALE-HEXA, RETOUR EN FCT MEM ******
 
 
- E50C 3438            DECHEX  PSHS Y,X,DP
- E50E 860A                    LDA #$0A
- E510 1F8B                    TFR A,DP        ; 10 DS DP
- E512 8E07E6                  LDX #PRESEL
- E515 108E0000                LDY #$00
- E519 A684            CALCUL  LDA ,X
- E51B 3121                    LEAY 1,Y
- E51D 108C0001                CMPY #$01
- E521 260B                    BNE COMPR2
- E523 8D66                    BSR LSBDSA      ; LSB DANS ACCA
- E525 3D              MULPAR  MUL
- E526 F307E7                  ADDD >PRELOW    ; D+PRELOW DS D
- E529 FD07E7                  STD >PRELOW
- E52C 20EB                    BRA CALCUL
+ E50F 3438            DECHEX  PSHS Y,X,DP
+ E511 860A                    LDA #$0A
+ E513 1F8B                    TFR A,DP        ; 10 DS DP
+ E515 8E07E6                  LDX #PRESEL
+ E518 108E0000                LDY #$00
+ E51C A684            CALCUL  LDA ,X
+ E51E 3121                    LEAY 1,Y
+ E520 108C0001                CMPY #$01
+ E524 260B                    BNE COMPR2
+ E526 8D66                    BSR LSBDSA      ; LSB DANS ACCA
+ E528 3D              MULPAR  MUL
+ E529 F307E7                  ADDD >PRELOW    ; D+PRELOW DS D
+ E52C FD07E7                  STD >PRELOW
+ E52F 20EB                    BRA CALCUL
                               
- E52E 108C0002        COMPR2  CMPY #$02
- E532 2606                    BNE COMPR3
- E534 8D6D                    BSR MUL100      ; MUL DES CENTAINES
- E536 8D62                    BSR MSBLSB
- E538 20EB                    BRA MULPAR
+ E531 108C0002        COMPR2  CMPY #$02
+ E535 2606                    BNE COMPR3
+ E537 8D6D                    BSR MUL100      ; MUL DES CENTAINES
+ E539 8D62                    BSR MSBLSB
+ E53B 20EB                    BRA MULPAR
                               
- E53A 108C0003        COMPR3  CMPY #$03
- E53E 260C                    BNE COMPR4
- E540 8D61                    BSR MUL100      ; MUL DES MILLIERS
- E542 A684                    LDA ,X
- E544 8D45                    BSR LSBDSA
- E546 3D              MULFIN  MUL
- E547 B607E1                  LDA >PRESER
- E54A 20D9                    BRA MULPAR
+ E53D 108C0003        COMPR3  CMPY #$03
+ E541 260C                    BNE COMPR4
+ E543 8D61                    BSR MUL100      ; MUL DES MILLIERS
+ E545 A684                    LDA ,X
+ E547 8D45                    BSR LSBDSA
+ E549 3D              MULFIN  MUL
+ E54A B607E1                  LDA >PRESER
+ E54D 20D9                    BRA MULPAR
                               
- E54C 108C0004        COMPR4  CMPY #$04
- E550 2623                    BNE COMPR5
- E552 8602                    LDA #$02
- E554 B707E2                  STA >SAUVER
- E557 8D50            RECMCE  BSR MUP100      ; MUL DES DIZAINES DE MILLIERS
- E559 7A07E2                  DEC >SAUVER
- E55C 2705                    BEQ M10000
- E55E F707E1                  STB >PRESER
- E561 20F4                    BRA RECMCE
+ E54F 108C0004        COMPR4  CMPY #$04
+ E553 2623                    BNE COMPR5
+ E555 8602                    LDA #$02
+ E557 B707E2                  STA >SAUVER
+ E55A 8D50            RECMCE  BSR MUP100      ; MUL DES DIZAINES DE MILLIERS
+ E55C 7A07E2                  DEC >SAUVER
+ E55F 2705                    BEQ M10000
+ E561 F707E1                  STB >PRESER
+ E564 20F4                    BRA RECMCE
                               
- E563 8D35            M10000  BSR MSBLSB
- E565 8103            SECPAR  CMPA #$03
- E567 2406                    BHS TESTER
- E569 108E0005                LDY #$05
- E56D 20D7                    BRA MULFIN
- E56F 2211            TESTER  BHI AFEROR
- E571 8602                    LDA #$02
- E573 20D1                    BRA MULFIN
+ E566 8D35            M10000  BSR MSBLSB
+ E568 8103            SECPAR  CMPA #$03
+ E56A 2406                    BHS TESTER
+ E56C 108E0005                LDY #$05
+ E570 20D7                    BRA MULFIN
+ E572 2211            TESTER  BHI AFEROR
+ E574 8602                    LDA #$02
+ E576 20D1                    BRA MULFIN
                               
- E575 108C0005        COMPR5  CMPY #$05
- E579 260E                    BNE FINCAL
- E57B 8601                    LDA #$01
- E57D F607E1                  LDB >PRESER
- E580 20E3                    BRA SECPAR
+ E578 108C0005        COMPR5  CMPY #$05
+ E57C 260E                    BNE FINCAL
+ E57E 8601                    LDA #$01
+ E580 F607E1                  LDB >PRESER
+ E583 20E3                    BRA SECPAR
                           
- E582 3578            AFEROR  PULS DP,X,Y,U
- E584 1F12                    TFR X,Y
- E586 16021F                  LBRA CLIGNO
+ E585 3578            AFEROR  PULS DP,X,Y,U
+ E587 1F12                    TFR X,Y
+ E589 16021F                  LBRA CLIGNO
                               
- E589 35B8            FINCAL  PULS PC,X,Y,DP      ; RTS
+ E58C 35B8            FINCAL  PULS PC,X,Y,DP      ; RTS
 
- E58B C608            LSBDSA  LDB #$08
- E58D 48              DECENC  LSLA
- E58E 5A                      DECB
- E58F C104                    CMPB #$04
- E591 26FA                    BNE DECENC
- E593 44              DECTJS  LSRA
- E594 5A                      DECB
- E595 26FC                    BNE DECTJS
- E597 1FB9                    TFR DP,B
- E599 39                      RTS
+ E58E C608            LSBDSA  LDB #$08
+ E590 48              DECENC  LSLA
+ E591 5A                      DECB
+ E592 C104                    CMPB #$04
+ E594 26FA                    BNE DECENC
+ E596 44              DECTJS  LSRA
+ E597 5A                      DECB
+ E598 26FC                    BNE DECTJS
+ E59A 1FB9                    TFR DP,B
+ E59C 39                      RTS
 
- E59A A684            MSBLSB  LDA ,X
- E59C 44                      LSRA
- E59D 44                      LSRA
- E59E 44                      LSRA
+ E59D A684            MSBLSB  LDA ,X
  E59F 44                      LSRA
- E5A0 301F                    LEAX -1,X
- E5A2 39                      RTS
+ E5A0 44                      LSRA
+ E5A1 44                      LSRA
+ E5A2 44                      LSRA
+ E5A3 301F                    LEAX -1,X
+ E5A5 39                      RTS
 
- E5A3 338D0008        MUL100  LEAU >INTER3,PCR
- E5A7 3440                    PSHS U
- E5A9 1FB9            MUP100  TFR DP,B
- E5AB 1F98                    TFR B,A
- E5AD 3D                      MUL
- E5AE 39                      RTS
+ E5A6 338D0008        MUL100  LEAU >INTER3,PCR
+ E5AA 3440                    PSHS U
+ E5AC 1FB9            MUP100  TFR DP,B
+ E5AE 1F98                    TFR B,A
+ E5B0 3D                      MUL
+ E5B1 39                      RTS
                               
- E5AF F707E1          INTER3  STB >PRESER
- E5B2 39                      RTS
+ E5B2 F707E1          INTER3  STB >PRESER
+ E5B5 39                      RTS
 
 
                       ****** RECONNAISSANCE DU BIT DU CARACTERE TRANSMIS ******
                       *
                       *
                       *
- E5B3 3406            RECBIT  PSHS B,A
- E5B5 C606            NOUDLY  LDB #$06
- E5B7 B6A005          SCARRY  LDA DISCNT      ; CHARGER PB7 PIA
- E5BA 48                      LSLA            ; PB7=1
- E5BB 24FA                    BCC SCARRY      ; NON, ATTENDRE UN 1 DEBUT CARAC.
- E5BD 5A              DLY30U  DECB            ; OUI, DELAI # 30MICROSEC
- E5BE 26FD                    BNE DLY30U
- E5C0 B6A005                  LDA DISCNT      ; CHARGER DE NOUVEAU PB7
- E5C3 48                      LSLA            ; 1 TOUJOURS PRESENT?
- E5C4 24EF                    BCC NOUDLY      ; NON, NOUVELLE ATTENTE D'UN CARAC.
- E5C6 C624                    LDB #$24        ; OUI, DELAI 430MICROSEC MINI
- E5C8 5A              CARRY1  DECB
- E5C9 B6A005                  LDA DISCNT
- E5CC 48                      LSLA            ; TOUJOURS 1?
- E5CD 25F9                    BCS CARRY1      ; OUI, DECOMPTER
- E5CF 86EF                    LDA #$EF        ; NON, DECOMPTE>720MICROSEC.
- E5D1 5D                      TSTB            ; BIT CARAC.=0?
- E5D2 2B01                    BMI AFSIGN      ; OUI, AFFICHER SIGNE POUR 0
- E5D4 47                      ASRA            ; NON, AFFICHER SIGNE POUR 1
- E5D5 B7A004          AFSIGN  STA DISREG
- E5D8 5D                      TSTB
- E5D9 3586                    PULS PC,B,A     ; RTS
+ E5B6 3406            RECBIT  PSHS B,A
+ E5B8 C606            NOUDLY  LDB #$06
+ E5BA B6A005          SCARRY  LDA DISCNT      ; CHARGER PB7 PIA
+ E5BD 48                      LSLA            ; PB7=1
+ E5BE 24FA                    BCC SCARRY      ; NON, ATTENDRE UN 1 DEBUT CARAC.
+ E5C0 5A              DLY30U  DECB            ; OUI, DELAI # 30MICROSEC
+ E5C1 26FD                    BNE DLY30U
+ E5C3 B6A005                  LDA DISCNT      ; CHARGER DE NOUVEAU PB7
+ E5C6 48                      LSLA            ; 1 TOUJOURS PRESENT?
+ E5C7 24EF                    BCC NOUDLY      ; NON, NOUVELLE ATTENTE D'UN CARAC.
+ E5C9 C624                    LDB #$24        ; OUI, DELAI 430MICROSEC MINI
+ E5CB 5A              CARRY1  DECB
+ E5CC B6A005                  LDA DISCNT
+ E5CF 48                      LSLA            ; TOUJOURS 1?
+ E5D0 25F9                    BCS CARRY1      ; OUI, DECOMPTER
+ E5D2 86EF                    LDA #$EF        ; NON, DECOMPTE>720MICROSEC.
+ E5D4 5D                      TSTB            ; BIT CARAC.=0?
+ E5D5 2B01                    BMI AFSIGN      ; OUI, AFFICHER SIGNE POUR 0
+ E5D7 47                      ASRA            ; NON, AFFICHER SIGNE POUR 1
+ E5D8 B7A004          AFSIGN  STA DISREG
+ E5DB 5D                      TSTB
+ E5DC 3586                    PULS PC,B,A     ; RTS
 
 
                       ******** POSITIONNEMENT DU BIT DU CARACTERE ********
@@ -967,77 +971,77 @@
                       *
                       *
                       *
- E5DB 3402            BITLSB  PSHS A
- E5DD 8DD4            BITCA1  BSR RECBIT      ; RECONNAISSANCE BIT TRANSMIS
- E5DF 2AFC                    BPL BITCA1      ; BIT CARAC. = 1
- E5E1 8608                    LDA #$08        ; RECONNAISSANCE BIT SUIVANTS
- E5E3 8DCE            CONROT  BSR RECBIT      ; BIT CARAC=0 RECON BITS SUIVANTS
- E5E5 1CFE                    ANDCC #$FE      ; CARRY=0
- E5E7 2B02                    BMI BITCA0      ; BIT CARACTERE = 0 ?
- E5E9 1A01                    ORCC #$01       ; NON, METRE CARRY A 1
- E5EB 56              BITCA0  RORB            ; OUI, DEPLACER LA CARRY
- E5EC 4A                      DECA            ; PAR ROTATIONS SUCCESSIVES
- E5ED 26F4                    BNE CONROT      ; CARRY DANS LSB DE ACCB
- E5EF 3582                    PULS PC,A       ; RTS
+ E5DE 3402            BITLSB  PSHS A
+ E5E0 8DD4            BITCA1  BSR RECBIT      ; RECONNAISSANCE BIT TRANSMIS
+ E5E2 2AFC                    BPL BITCA1      ; BIT CARAC. = 1
+ E5E4 8608                    LDA #$08        ; RECONNAISSANCE BIT SUIVANTS
+ E5E6 8DCE            CONROT  BSR RECBIT      ; BIT CARAC=0 RECON BITS SUIVANTS
+ E5E8 1CFE                    ANDCC #$FE      ; CARRY=0
+ E5EA 2B02                    BMI BITCA0      ; BIT CARACTERE = 0 ?
+ E5EC 1A01                    ORCC #$01       ; NON, METRE CARRY A 1
+ E5EE 56              BITCA0  RORB            ; OUI, DEPLACER LA CARRY
+ E5EF 4A                      DECA            ; PAR ROTATIONS SUCCESSIVES
+ E5F0 26F4                    BNE CONROT      ; CARRY DANS LSB DE ACCB
+ E5F2 3582                    PULS PC,A       ; RTS
 
 
                       ****** CHARGEMENT D'UN PROGRAMMA PROVENANT D'UNE CASSETTE ******
                       ****************************************************************
 
 
- E5F1 CC0000          EXLOAD  LDD #$0000
- E5F4 FDA006                  STD SCNREG      ; ACCES A DDRAB
- E5F7 CCFF7F                  LDD #$FF7F
- E5FA FDA004                  STD DISREG      ; PA ET PB EN SORTIE
- E5FD CC0404                  LDD #$0404      ; PB7 EN ENTREE
- E600 FDA006                  STD SCNREG      ; ACCES DRAB
- E603 CCFF04                  LDD #$FF04      ; ETEINDRE LES AFFICHEURS
- E606 FDA004                  STD DISREG      ; ET SELECTIONNER LE 1er DIGIT
- E609 8DD0            DETECS  BSR BITLSB      ; DETECTE CARACTERE DEBUT CHARGEMENT
- E60B C153                    CMPB #$53       ; CARACTERE S TRANSMIS ?
- E60D 26FA                    BNE DETECS      ; NON, CONTINUER A CHERCHER CARACTERE
- E60F 8DCA                    BSR BITLSB      ; OUI, CARACTERES SUIVANTS 
- E611 C131                    CMPB #$31       ; CARACTERE 1 TRANSMIS ?
- E613 2708                    BEQ CARSUI      ; OUI, CARACTERES SUIVANTS
- E615 C14A                    CMPB #$4A       ; NON, CARACTERE FIN = J ?
- E617 26F0                    BNE DETECS      ; NON, DETECTER CARACTERE DE FIN
- E619 8669            AFICHA  LDA #$69        ; LDA #$69 OUI, AFFICHER FIN DU CHARGEMENT
- E61B 2032                    BRA DISFIN
+ E5F4 CC0000          EXLOAD  LDD #$0000
+ E5F7 FDA006                  STD SCNREG      ; ACCES A DDRAB
+ E5FA CCFF7F                  LDD #$FF7F
+ E5FD FDA004                  STD DISREG      ; PA ET PB EN SORTIE
+ E600 CC0404                  LDD #$0404      ; PB7 EN ENTREE
+ E603 FDA006                  STD SCNREG      ; ACCES DRAB
+ E606 CCFF04                  LDD #$FF04      ; ETEINDRE LES AFFICHEURS
+ E609 FDA004                  STD DISREG      ; ET SELECTIONNER LE 1er DIGIT
+ E60C 8DD0            DETECS  BSR BITLSB      ; DETECTE CARACTERE DEBUT CHARGEMENT
+ E60E C153                    CMPB #$53       ; CARACTERE S TRANSMIS ?
+ E610 26FA                    BNE DETECS      ; NON, CONTINUER A CHERCHER CARACTERE
+ E612 8DCA                    BSR BITLSB      ; OUI, CARACTERES SUIVANTS 
+ E614 C131                    CMPB #$31       ; CARACTERE 1 TRANSMIS ?
+ E616 2708                    BEQ CARSUI      ; OUI, CARACTERES SUIVANTS
+ E618 C14A                    CMPB #$4A       ; NON, CARACTERE FIN = J ?
+ E61A 26F0                    BNE DETECS      ; NON, DETECTER CARACTERE DE FIN
+ E61C 8669            AFICHA  LDA #$69        ; LDA #$69 OUI, AFFICHER FIN DU CHARGEMENT
+ E61E 2032                    BRA DISFIN
 
 
                       ****** MISE EN MEMOIRE, POINTEE PAR X DES CARAC TRANSMIS ******
                       ***************************************************************
 
- E61D 8DBC            CARSUI  BSR BITLSB      ; CONVERSION INTERVALE
- E61F D7F0                    STB <SAVCNT
- E621 96F0                    LDA <SAVCNT
- E623 8DB6                    BSR BITLSB
- E625 D7F6                    STB <SAVB1
- E627 3404                    PSHS B
- E629 ABE0                    ADDA ,S+        ; A + B DANS ACCA
- E62B 0AF0                    DEC <SAVCNT 
- E62D 8DAC                    BSR BITLSB 
- E62F D7F7                    STB <SAVB2
- E631 3404                    PSHS B
- E633 ABE0                    ADDA ,S+        ; A + B DANS ACCA
- E635 9EF6                    LDX <SAVB1      ; X CONTIENT ADRESSE DE CHARGEMENT
- E637 0AF0            SUICHA  DEC <SAVCNT
- E639 270A                    BEQ DERADD      ; DERNIERE ADRESSE ?
- E63B 8D9E                    BSR BITLSB      ; NON, CONTINUER A CHARGER
- E63D E780                    STB ,X+         ; ET A METTRE EN MEMOIRE
- E63F 3404                    PSHS B
- E641 ABE0                    ADDA ,S+        ; A + B DANS ACCA
- E643 20F2                    BRA SUICHA 
+ E620 8DBC            CARSUI  BSR BITLSB      ; CONVERSION INTERVALE
+ E622 D7F0                    STB <SAVCNT
+ E624 96F0                    LDA <SAVCNT
+ E626 8DB6                    BSR BITLSB
+ E628 D7F6                    STB <SAVB1
+ E62A 3404                    PSHS B
+ E62C ABE0                    ADDA ,S+        ; A + B DANS ACCA
+ E62E 0AF0                    DEC <SAVCNT 
+ E630 8DAC                    BSR BITLSB 
+ E632 D7F7                    STB <SAVB2
+ E634 3404                    PSHS B
+ E636 ABE0                    ADDA ,S+        ; A + B DANS ACCA
+ E638 9EF6                    LDX <SAVB1      ; X CONTIENT ADRESSE DE CHARGEMENT
+ E63A 0AF0            SUICHA  DEC <SAVCNT
+ E63C 270A                    BEQ DERADD      ; DERNIERE ADRESSE ?
+ E63E 8D9E                    BSR BITLSB      ; NON, CONTINUER A CHARGER
+ E640 E780                    STB ,X+         ; ET A METTRE EN MEMOIRE
+ E642 3404                    PSHS B
+ E644 ABE0                    ADDA ,S+        ; A + B DANS ACCA
+ E646 20F2                    BRA SUICHA 
                               
- E645 8D94            DERADD  BSR BITLSB      ; OUI, DERNIERE ADRESSE
- E647 3404                    PSHS B
- E649 ABE0                    ADDA ,S+        ; ERREUR DANS LA TRANSMISSION
- E64B 27BC                    BEQ DETECS 
- E64D 8678                    LDA #$78        ; OUI, AFFICHER L'ERREUR
- E64F 17FC4B          DISFIN  LBSR CLRDIS 
- E652 97FA                    STA <DISBUF
- E654 17FA24          BOUFIN  LBSR DISPRE
- E657 20FB                    BRA BOUFIN
+ E648 8D94            DERADD  BSR BITLSB      ; OUI, DERNIERE ADRESSE
+ E64A 3404                    PSHS B
+ E64C ABE0                    ADDA ,S+        ; ERREUR DANS LA TRANSMISSION
+ E64E 27BC                    BEQ DETECS 
+ E650 8678                    LDA #$78        ; OUI, AFFICHER L'ERREUR
+ E652 17FC4B          DISFIN  LBSR CLRDIS 
+ E655 97FA                    STA <DISBUF
+ E657 17FA21          BOUFIN  LBSR DISPRE
+ E65A 20FB                    BRA BOUFIN
 
 
                       ****** CHARGEMENT D'UN PROGRAMME D'UNE ZONE MEMOIRE ******
@@ -1045,167 +1049,167 @@
                       **********************************************************
 
 
- E659 8E003D          EXPUNC  LDX #$003D 
- E65C 9FFE                    STX <DISBUF+4   ; AFFICHER S POUR START
- E65E 17FA5C                  LBSR BADDR      ; FABRIQUER ADRESSE DE DEBUT
- E661 9FF2                    STX <SADDR1     ; SAUVE DEBUT ADRESSE
- E663 8669                    LDA #$69        ; AFFICHER F POUR FIN
- E665 97FF                    STA <DISBUF+5
- E667 17FA53                  LBSR BADDR      ; FABRIQUER ADRESSE DE FIN
- E66A 9FF4                    STX <SADDR2     ; SAUVE FIN ADRESSE
- E66C 4F                      CLRA            ; ACCES A DDRB
- E66D B7A007                  STA SCNCNT
- E670 4A                      DECA            ; PB EN SORTIE
- E671 B7A005                  STA DISCNT 
- E674 8604                    LDA #$04        ; ACCES A ORB DU PIA
- E676 B7A007                  STA SCNCNT
- E679 4F                      CLRA            ; LIGNE No 0 A 0 ET PB6 = 0
- E67A B7A005                  STA DISCNT
- E67D 86FF                    LDA #$FF 
- E67F 8D71                    BSR DLY5MS      ; FABRICATION D'UNE SERIE
- E681 8D6F                    BSR DLY5MS      ; DE 10 PERIODES DE 1400 ET 5600HZ
- E683 8D63            RECYCL  BSR DEBCHA      ; CHARGER CARACTERE DE DEBUT
- E685 86FF                    LDA #$FF
- E687 D6F3                    LDB <SADDR1+1   ; POIDS FAIBLE ADRESSE DEBUT
- E689 3404                    PSHS B
- E68B A0E0                    SUBA ,S+        ; A + B DANS ACCA
- E68D 840F            CODFIN  ANDA #$0F 
- E68F 8B03                    ADDA #$03       ; TRANSMISSION D'UN CARACTERE
- E691 8D5F                    BSR DLY5MS      ; INTERVALE
- E693 97F1                    STA <SAVREG
- E695 8E07F2                  LDX #SADDR1     ; DEBUT ADRESSE
- E698 8D56                    BSR TRANSM      ; TRANSMISSION MSB ADRESSE DEBUT
- E69A 9BF1                    ADDA <SAVREG
- E69C 97F1                    STA <SAVREG
- E69E 3001                    LEAX 1,X
- E6A0 8D4E                    BSR TRANSM      ; TRANSMISSION LSB ADRESSE DEBUT
- E6A2 9BF1                    ADDA <SAVREG
- E6A4 97F1                    STA <SAVREG
- E6A6 9EF2                    LDX <SADDR1     ; X POINTE SUR PROGRAMME A ENREGISTRER
- E6A8 8D46            TJTRAN  BSR TRANSM      ; TRANSMISSION DES DONNEES
- E6AA 9BF1                    ADDA <SAVREG
- E6AC 97F1                    STA <SAVREG 
- E6AE 9CF4                    CMPX <SADDR2    ; FIN D'ENREGISTREMENT ?
- E6B0 270A                    BEQ FINENR      ; OUI, TRANSMETTRE FIN
- E6B2 3001                    LEAX 1,X        ; NON, DONNEE SUIVANTE A TRANSMETTRE
- E6B4 9FF2                    STX <SADDR1     ; SAUVE POINTEUR
- E6B6 96F3                    LDA <SADDR1+1
- E6B8 850F                    BITA #$0F       ; 16 CARACTERES TRANSMIS ?
- E6BA 26EC                    BNE TJTRAN      ; NON, CONTINUER TRANSMISSION
- E6BC 96F1            FINENR  LDA <SAVREG     ; OUI, 16 CARACTERES TRANSMIS
- E6BE 40                      NEGA
- E6BF 8D31                    BSR DLY5MS      ; TRANSMISSION CODE POUR 16CARAC TRANSMIS
- E6C1 9CF4                    CMPX <SADDR2    ; FIN PROGRAMME ?
- E6C3 2718                    BEQ FINCHA      ; OUI, TRANSMETTRE FIN CHARGEMENT
- E6C5 96F2                    LDA <SADDR1     ; NON, MSB DEBUT ADRESSE
- E6C7 91F4                    CMPA <SADDR2    ; < MSB FIN ADRESSE ?
- E6C9 2BB8                    BMI RECYCL      ; OUI, RECOMMENCER CYCLE
- E6CB D6F3                    LDB <SADDR1+1   ; NON, LSB DEBUT ADRESSE
- E6CD 96F5                    LDA <SADDR2+1   ; -LSB FIN ADRESSE <>0 ?
- E6CF 84F0                    ANDA #$F0
- E6D1 3404                    PSHS B
- E6D3 A1E0                    CMPA ,S+        ; COMPARE B A ACCA
- E6D5 26AC                    BNE RECYCL      ; OUI, RECOMMENCER UN CYCLE
- E6D7 8D0F                    BSR DEBCHA      ; NON, TRANSMETTRE DEBUT CHARGEMENT
- E6D9 96F5                    LDA <SADDR2+1   ; DU CODE DE FIN
- E6DB 20B0                    BRA CODFIN      ; CHARGEMENT PUIS FIN
+ E65C 8E003D          EXPUNC  LDX #$003D 
+ E65F 9FFE                    STX <DISBUF+4   ; AFFICHER S POUR START
+ E661 17FA59                  LBSR BADDR      ; FABRIQUER ADRESSE DE DEBUT
+ E664 9FF2                    STX <SADDR1     ; SAUVE DEBUT ADRESSE
+ E666 8669                    LDA #$69        ; AFFICHER F POUR FIN
+ E668 97FF                    STA <DISBUF+5
+ E66A 17FA50                  LBSR BADDR      ; FABRIQUER ADRESSE DE FIN
+ E66D 9FF4                    STX <SADDR2     ; SAUVE FIN ADRESSE
+ E66F 4F                      CLRA            ; ACCES A DDRB
+ E670 B7A007                  STA SCNCNT
+ E673 4A                      DECA            ; PB EN SORTIE
+ E674 B7A005                  STA DISCNT 
+ E677 8604                    LDA #$04        ; ACCES A ORB DU PIA
+ E679 B7A007                  STA SCNCNT
+ E67C 4F                      CLRA            ; LIGNE No 0 A 0 ET PB6 = 0
+ E67D B7A005                  STA DISCNT
+ E680 86FF                    LDA #$FF 
+ E682 8D71                    BSR DLY5MS      ; FABRICATION D'UNE SERIE
+ E684 8D6F                    BSR DLY5MS      ; DE 10 PERIODES DE 1400 ET 5600HZ
+ E686 8D63            RECYCL  BSR DEBCHA      ; CHARGER CARACTERE DE DEBUT
+ E688 86FF                    LDA #$FF
+ E68A D6F3                    LDB <SADDR1+1   ; POIDS FAIBLE ADRESSE DEBUT
+ E68C 3404                    PSHS B
+ E68E A0E0                    SUBA ,S+        ; A + B DANS ACCA
+ E690 840F            CODFIN  ANDA #$0F 
+ E692 8B03                    ADDA #$03       ; TRANSMISSION D'UN CARACTERE
+ E694 8D5F                    BSR DLY5MS      ; INTERVALE
+ E696 97F1                    STA <SAVREG
+ E698 8E07F2                  LDX #SADDR1     ; DEBUT ADRESSE
+ E69B 8D56                    BSR TRANSM      ; TRANSMISSION MSB ADRESSE DEBUT
+ E69D 9BF1                    ADDA <SAVREG
+ E69F 97F1                    STA <SAVREG
+ E6A1 3001                    LEAX 1,X
+ E6A3 8D4E                    BSR TRANSM      ; TRANSMISSION LSB ADRESSE DEBUT
+ E6A5 9BF1                    ADDA <SAVREG
+ E6A7 97F1                    STA <SAVREG
+ E6A9 9EF2                    LDX <SADDR1     ; X POINTE SUR PROGRAMME A ENREGISTRER
+ E6AB 8D46            TJTRAN  BSR TRANSM      ; TRANSMISSION DES DONNEES
+ E6AD 9BF1                    ADDA <SAVREG
+ E6AF 97F1                    STA <SAVREG 
+ E6B1 9CF4                    CMPX <SADDR2    ; FIN D'ENREGISTREMENT ?
+ E6B3 270A                    BEQ FINENR      ; OUI, TRANSMETTRE FIN
+ E6B5 3001                    LEAX 1,X        ; NON, DONNEE SUIVANTE A TRANSMETTRE
+ E6B7 9FF2                    STX <SADDR1     ; SAUVE POINTEUR
+ E6B9 96F3                    LDA <SADDR1+1
+ E6BB 850F                    BITA #$0F       ; 16 CARACTERES TRANSMIS ?
+ E6BD 26EC                    BNE TJTRAN      ; NON, CONTINUER TRANSMISSION
+ E6BF 96F1            FINENR  LDA <SAVREG     ; OUI, 16 CARACTERES TRANSMIS
+ E6C1 40                      NEGA
+ E6C2 8D31                    BSR DLY5MS      ; TRANSMISSION CODE POUR 16CARAC TRANSMIS
+ E6C4 9CF4                    CMPX <SADDR2    ; FIN PROGRAMME ?
+ E6C6 2718                    BEQ FINCHA      ; OUI, TRANSMETTRE FIN CHARGEMENT
+ E6C8 96F2                    LDA <SADDR1     ; NON, MSB DEBUT ADRESSE
+ E6CA 91F4                    CMPA <SADDR2    ; < MSB FIN ADRESSE ?
+ E6CC 2BB8                    BMI RECYCL      ; OUI, RECOMMENCER CYCLE
+ E6CE D6F3                    LDB <SADDR1+1   ; NON, LSB DEBUT ADRESSE
+ E6D0 96F5                    LDA <SADDR2+1   ; -LSB FIN ADRESSE <>0 ?
+ E6D2 84F0                    ANDA #$F0
+ E6D4 3404                    PSHS B
+ E6D6 A1E0                    CMPA ,S+        ; COMPARE B A ACCA
+ E6D8 26AC                    BNE RECYCL      ; OUI, RECOMMENCER UN CYCLE
+ E6DA 8D0F                    BSR DEBCHA      ; NON, TRANSMETTRE DEBUT CHARGEMENT
+ E6DC 96F5                    LDA <SADDR2+1   ; DU CODE DE FIN
+ E6DE 20B0                    BRA CODFIN      ; CHARGEMENT PUIS FIN
 
 
                       ****** FABRICATION DU SIGNAL DE FIN DE CHARGEMENT ******
                       *
                       *
- E6DD 8653            FINCHA  LDA #$53
- E6DF 8D11                    BSR DLY5MS
- E6E1 864A                    LDA #$4A
- E6E3 8D0D                    BSR DLY5MS
- E6E5 16FF31                  LBRA AFICHA     ; AFFICHAGE FIN DE CHARGEMENT
+ E6E0 8653            FINCHA  LDA #$53
+ E6E2 8D11                    BSR DLY5MS
+ E6E4 864A                    LDA #$4A
+ E6E6 8D0D                    BSR DLY5MS
+ E6E8 16FF31                  LBRA AFICHA     ; AFFICHAGE FIN DE CHARGEMENT
 
 
                       ****** FABRICATION DU SIGNAL DE DEBUT DE CHARGEMENT ******
                       *
                       *
- E6E8 8653            DEBCHA  LDA #$53
- E6EA 8D06                    BSR DLY5MS      ; TRANSMISSION CARACTERE S
- E6EC 8631                    LDA #$31
- E6EE 2002                    BRA DLY5MS      ; TRANSMISSION DU CARACTERE 1
+ E6EB 8653            DEBCHA  LDA #$53
+ E6ED 8D06                    BSR DLY5MS      ; TRANSMISSION CARACTERE S
+ E6EF 8631                    LDA #$31
+ E6F1 2002                    BRA DLY5MS      ; TRANSMISSION DU CARACTERE 1
 
 
                       ****** FABRICATION DU SIGNAL SERIALISE ******
                       *********** DE 10 PERIODES PAR DONNEES **********
                       *
                       *
- E6F0 A684            TRANSM  LDA ,X
- E6F2 3406            DLY5MS  PSHS B,A
- E6F4 C60A                    LDB #$0A
- E6F6 D7EF                    STB <SAVRES
- E6F8 1CFE                    ANDCC #$FE      ; METTRE CARRY A 0
- E6FA C690            BOUCL3 LDB #$90         ; DELAI = 720MICROSEC
- E6FC 2402                    BCC SAUT
- E6FE C624                    LDB #$24        ; DELAI = 180MICROSEC
- E700 3404            SAUT    PSHS B
- E702 C640                    LDB #$40
- E704 F7A005                  STB DISCNT      ; PB6=1
- E707 E6E4                    LDB ,S
- E709 5A              BOUCL1  DECB            ; DELAY 180 OU 720MICROSEC
- E70A 26FD                    BNE BOUCL1
- E70C F7A005                  STB DISCNT      ; PB6=0
- E70F 3504                    PULS B
- E711 5A              BOUCL2  DECB            ; NOUVEAU DELAY DE 180 OU 720MICROSEC
- E712 26FD                    BNE BOUCL2
- E714 1A01                    ORCC #$01       ; METTRE CARRY A 1
- E716 46                      RORA
- E717 0AEF                    DEC <SAVRES
- E719 26DF                    BNE BOUCL3      ; TERMINER DELAY DE 5MS
- E71B 3586                    PULS PC,B,A     ; RTS
+ E6F3 A684            TRANSM  LDA ,X
+ E6F5 3406            DLY5MS  PSHS B,A
+ E6F7 C60A                    LDB #$0A
+ E6F9 D7EF                    STB <SAVRES
+ E6FB 1CFE                    ANDCC #$FE      ; METTRE CARRY A 0
+ E6FD C690            BOUCL3 LDB #$90         ; DELAI = 720MICROSEC
+ E6FF 2402                    BCC SAUT
+ E701 C624                    LDB #$24        ; DELAI = 180MICROSEC
+ E703 3404            SAUT    PSHS B
+ E705 C640                    LDB #$40
+ E707 F7A005                  STB DISCNT      ; PB6=1
+ E70A E6E4                    LDB ,S
+ E70C 5A              BOUCL1  DECB            ; DELAY 180 OU 720MICROSEC
+ E70D 26FD                    BNE BOUCL1
+ E70F F7A005                  STB DISCNT      ; PB6=0
+ E712 3504                    PULS B
+ E714 5A              BOUCL2  DECB            ; NOUVEAU DELAY DE 180 OU 720MICROSEC
+ E715 26FD                    BNE BOUCL2
+ E717 1A01                    ORCC #$01       ; METTRE CARRY A 1
+ E719 46                      RORA
+ E71A 0AEF                    DEC <SAVRES
+ E71C 26DF                    BNE BOUCL3      ; TERMINER DELAY DE 5MS
+ E71E 3586                    PULS PC,B,A     ; RTS
 
 
                       ***** EXECUTION DE LA FONCTION OFFSET *****
                       *
                       *
                       *
- E71D 17FA4B          EXOFST  LBSR INCREM
- E720 A684                    LDA ,X
- E722 8116                    CMPA #$16       ; LBRA?
- E724 2734                    BEQ EXLBIL      ; OUI, BRANCHEMENT LONG INCONDITIONNEL
- E726 8117                    CMPA #$17       ; LBSR/
- E728 2730                    BEQ EXLBIL      ; OUI, //////////////////////////////
- E72A A682                    LDA ,-X         ; POINTER SUR INSTRUCTION PRECEDENTE
- E72C 8110                    CMPA #$10       ; BRANCHEMENT CONDITIONNEL LONG?
- E72E 2728                    BEQ EXLBCL      ; OUI
- E730 3003            OFPOCT  LEAX 3,X        ; X CONTIENT ADRESSE DU BRANCHEMENT COURT
- E732 8D3B                    BSR CALOFS      ; CALCULER OFFSET
- E734 2951                    BVS RETOU1      ; SI DEPASSEMENT DE CAPACITE, ERREUR
- E736 95E9                    BITA <NEGPOS
- E738 2704                    BEQ BRANPO      ; TOUT MSB A 0 = BRANCH POS
- E73A 2B09                    BMI BRANNE      ; MSBIT=1 BRANCH NEG
- E73C 2049                    BRA RETOU1      ; BRANCH SUR 16 BITS
+ E720 17FA48          EXOFST  LBSR INCREM
+ E723 A684                    LDA ,X
+ E725 8116                    CMPA #$16       ; LBRA?
+ E727 2734                    BEQ EXLBIL      ; OUI, BRANCHEMENT LONG INCONDITIONNEL
+ E729 8117                    CMPA #$17       ; LBSR/
+ E72B 2730                    BEQ EXLBIL      ; OUI, //////////////////////////////
+ E72D A682                    LDA ,-X         ; POINTER SUR INSTRUCTION PRECEDENTE
+ E72F 8110                    CMPA #$10       ; BRANCHEMENT CONDITIONNEL LONG?
+ E731 2728                    BEQ EXLBCL      ; OUI
+ E733 3003            OFPOCT  LEAX 3,X        ; X CONTIENT ADRESSE DU BRANCHEMENT COURT
+ E735 8D3B                    BSR CALOFS      ; CALCULER OFFSET
+ E737 2951                    BVS RETOU1      ; SI DEPASSEMENT DE CAPACITE, ERREUR
+ E739 95E9                    BITA <NEGPOS
+ E73B 2704                    BEQ BRANPO      ; TOUT MSB A 0 = BRANCH POS
+ E73D 2B09                    BMI BRANNE      ; MSBIT=1 BRANCH NEG
+ E73F 2049                    BRA RETOU1      ; BRANCH SUR 16 BITS
                               
- E73E 5D              BRANPO  TSTB
- E73F 2746                    BEQ RETOU1      ; BRANCH NUL IMPOSSIBLE 
- E741 2B44                    BMI RETOU1      ; N=1, ERREUR BRANCH=16BITS
- E743 200B                    BRA CHARGE      ; N=0, CHARGE OFFSET DS MEM PROG
+ E741 5D              BRANPO  TSTB
+ E742 2746                    BEQ RETOU1      ; BRANCH NUL IMPOSSIBLE 
+ E744 2B44                    BMI RETOU1      ; N=1, ERREUR BRANCH=16BITS
+ E746 200B                    BRA CHARGE      ; N=0, CHARGE OFFSET DS MEM PROG
                               
- E745 91E9            BRANNE  CMPA <NEGPOS    ; A=FF?
- E747 263E                    BNE RETOU1      ; NON, ERREUR BRANCH SUR 16 BITS
- E749 5D                      TSTB            ; POSITIONNER N
- E74A 2A3B                    BPL RETOU1      ; N=0, BRANCH SUR 16BITS
- E74C C1FF                    CMPB #$FF
- E74E 2737                    BEQ RETOU1
- E750 E7A2            CHARGE  STB ,-Y         ; STOCKE OFFSET DS MEM PROG
- E752 17008E                  LBSR AFFIAD     ; AFFICHE ADRESSE DE STOCKAGE
- E755 16F9E0                  LBRA REMEMO     ; RETOUR DS FCT MEMOIRE
+ E748 91E9            BRANNE  CMPA <NEGPOS    ; A=FF?
+ E74A 263E                    BNE RETOU1      ; NON, ERREUR BRANCH SUR 16 BITS
+ E74C 5D                      TSTB            ; POSITIONNER N
+ E74D 2A3B                    BPL RETOU1      ; N=0, BRANCH SUR 16BITS
+ E74F C1FF                    CMPB #$FF
+ E751 2737                    BEQ RETOU1
+ E753 E7A2            CHARGE  STB ,-Y         ; STOCKE OFFSET DS MEM PROG
+ E755 17008E                  LBSR AFFIAD     ; AFFICHE ADRESSE DE STOCKAGE
+ E758 16F9DD                  LBRA REMEMO     ; RETOUR DS FCT MEMOIRE
                               
- E758 3001            EXLBCL  LEAX 1,X 
- E75A 3003            EXLBIL  LEAX 3,X        ; BRANCH LONG, X=ADRESSE DE DEPART
- E75C 8D11                    BSR CALOFS      ; CALCULE OFFSET
- E75E 292B                    BVS RETOU2      ; SI DEPASSE CAPACITE, ERREUR
- E760 81FF                    CMPA #$FF
- E762 2717                    BEQ PLUCOU      ; BRANCH COURT PEUT ETRE POSSIBLE
- E764 8100                    CMPA #$00 
- E766 2719                    BEQ BCOURT      ; BRANCH>0 COURT POSSIBLE
- E768 EDA3            SUITEB  STD ,--Y        ; STOCKE OFFSET DS MEM PROG
- E76A 8D77                    BSR AFFIAD      ; AFFICHE ADRESSE
- E76C 16F9C9                  LBRA REMEMO     ; RETOUR DS FCT MEMOIRE
+ E75B 3001            EXLBCL  LEAX 1,X 
+ E75D 3003            EXLBIL  LEAX 3,X        ; BRANCH LONG, X=ADRESSE DE DEPART
+ E75F 8D11                    BSR CALOFS      ; CALCULE OFFSET
+ E761 292B                    BVS RETOU2      ; SI DEPASSE CAPACITE, ERREUR
+ E763 81FF                    CMPA #$FF
+ E765 2717                    BEQ PLUCOU      ; BRANCH COURT PEUT ETRE POSSIBLE
+ E767 8100                    CMPA #$00 
+ E769 2719                    BEQ BCOURT      ; BRANCH>0 COURT POSSIBLE
+ E76B EDA3            SUITEB  STD ,--Y        ; STOCKE OFFSET DS MEM PROG
+ E76D 8D77                    BSR AFFIAD      ; AFFICHE ADRESSE
+ E76F 16F9C6                  LBRA REMEMO     ; RETOUR DS FCT MEMOIRE
 
 
                       ****** CALCULE L'OFFSET SUR 16 BITS ******
@@ -1213,59 +1217,59 @@
                       *
                       *
                       *
- E76F 1F12            CALOFS  TFR X,Y         ; Y=ADRESSE DE DEPART
- E771 109FEA                  STY <ADDDEP
- E774 8D4C                    BSR AFFIAR      ; AFFICHAGE ADRESSE ARRIVEE
- E776 1F10                    TFR X,D         ; D=ADRESSE DEPART
- E778 93EA                    SUBD <ADDDEP    ; D=ARRIVEE-DEPART=OFFSET
- E77A 39                      RTS
+ E772 1F12            CALOFS  TFR X,Y         ; Y=ADRESSE DE DEPART
+ E774 109FEA                  STY <ADDDEP
+ E777 8D4C                    BSR AFFIAR      ; AFFICHAGE ADRESSE ARRIVEE
+ E779 1F10                    TFR X,D         ; D=ADRESSE DEPART
+ E77B 93EA                    SUBD <ADDDEP    ; D=ARRIVEE-DEPART=OFFSET
+ E77D 39                      RTS
 
 
                       ** DETERMINE SI LE BRANCH SUR 16BITS PEUT SE FAIRE SUR 8BITS **
                       *
                       *
                       *
- E77B 59              PLUCOU  ROLB
- E77C 250D                    BCS RETOU2      ; BRANCH COURT POSSIBLE
- E77E 56                      RORB
- E77F 20E7                    BRA SUITEB      ; CONTINUE CALCUL
+ E77E 59              PLUCOU  ROLB
+ E77F 250D                    BCS RETOU2      ; BRANCH COURT POSSIBLE
+ E781 56                      RORB
+ E782 20E7                    BRA SUITEB      ; CONTINUE CALCUL
                               
- E781 59              BCOURT  ROLB
- E782 2407                    BCC RETOU2
- E784 56                      RORB
- E785 20E1                    BRA SUITEB
+ E784 59              BCOURT  ROLB
+ E785 2407                    BCC RETOU2
+ E787 56                      RORB
+ E788 20E1                    BRA SUITEB
                           
- E787 313E            RETOU1  LEAY -2,Y
- E789 201D                    BRA CLIGNO      ; AFFICHE ERREUR, PUIS RETOUR MEMORY
+ E78A 313E            RETOU1  LEAY -2,Y
+ E78C 201D                    BRA CLIGNO      ; AFFICHE ERREUR, PUIS RETOUR MEMORY
                               
- E78B 313C            RETOU2  LEAY -4,Y
- E78D A6A0                    LDA ,Y+
- E78F 8110                    CMPA #$10
- E791 2713                    BEQ CLIGNE
- E793 A6A4                    LDA ,Y
- E795 8116                    CMPA #$16
- E797 270F                    BEQ CLIGNO
- E799 8117                    CMPA #$17
- E79B 270B                    BEQ CLIGNO
- E79D 848F                    ANDA #$8F
- E79F 818D                    CMPA #$8D
- E7A1 2705                    BEQ CLIGNO
- E7A3 16FA96                  LBRA RPOINT     ; SI PAS BRANCH, RETOUR RESET
+ E78E 313C            RETOU2  LEAY -4,Y
+ E790 A6A0                    LDA ,Y+
+ E792 8110                    CMPA #$10
+ E794 2713                    BEQ CLIGNE
+ E796 A6A4                    LDA ,Y
+ E798 8116                    CMPA #$16
+ E79A 270F                    BEQ CLIGNO
+ E79C 8117                    CMPA #$17
+ E79E 270B                    BEQ CLIGNO
+ E7A0 848F                    ANDA #$8F
+ E7A2 818D                    CMPA #$8D
+ E7A4 2705                    BEQ CLIGNO
+ E7A6 16FA93                  LBRA RPOINT     ; SI PAS BRANCH, RETOUR RESET
                               
- E7A6 313F            CLIGNE  LEAY -1,Y
- E7A8 8D39            CLIGNO  BSR AFFIAD      ; AFFICHE ADRESSE OU EST L'ERREUR
- E7AA 8D09                    BSR ERROR       ; PLACE ERREUR DS DISBUF
- E7AC 108E02FF                LDY #$02FF
- E7B0 17F8C8          AFCLIG  LBSR DISPRE     ; AFFICHE L'ERREUR
- E7B3 2006                    BRA TEMPO       ; TEMPORAIREMENT
+ E7A9 313F            CLIGNE  LEAY -1,Y
+ E7AB 8D39            CLIGNO  BSR AFFIAD      ; AFFICHE ADRESSE OU EST L'ERREUR
+ E7AD 8D09                    BSR ERROR       ; PLACE ERREUR DS DISBUF
+ E7AF 108E02FF                LDY #$02FF
+ E7B3 17F8C5          AFCLIG  LBSR DISPRE     ; AFFICHE L'ERREUR
+ E7B6 2006                    BRA TEMPO       ; TEMPORAIREMENT
                               
- E7B5 CC7941          ERROR   LDD #$7941      ; PLACE ER DANS LES 2
- E7B8 DDFE                    STD <DISBUF+4   ; DERNIERS DIGITS
- E7BA 39                      RTS
+ E7B8 CC7941          ERROR   LDD #$7941      ; PLACE ER DANS LES 2
+ E7BB DDFE                    STD <DISBUF+4   ; DERNIERS DIGITS
+ E7BD 39                      RTS
                               
- E7BB 313F            TEMPO   LEAY -1,Y
- E7BD 26F1                    BNE AFCLIG
- E7BF 16F976                  LBRA REMEMO     ; RETOUR DANS FCT MEMORY
+ E7BE 313F            TEMPO   LEAY -1,Y
+ E7C0 26F1                    BNE AFCLIG
+ E7C2 16F973                  LBRA REMEMO     ; RETOUR DANS FCT MEMORY
 
 
                       ****** AFFICHAGE DE L'ADRESSE D'ARRIVEE ******
@@ -1273,22 +1277,22 @@
                       *
                       *
                       *
- E7C2 CC6F41          AFFIAR  LDD #$6F41      ; AFFICHE AR DS DISBUF
- E7C5 DDFE                    STD <DISBUF+4
- E7C7 17F8F3                  LBSR BADDR      ; AFFICHE ADRESSE ARRIVEE
- E7CA 9FEC                    STX <ADDARR
- E7CC 17F851                  LBSR GETKEY
- E7CF 8131                    CMPA #$31       ; TOUCHE GO?
- E7D1 2703                    BEQ SUIVT       ; OUI, CHARGE ADRESSE
- E7D3 16FA66                  LBRA RPOINT 
+ E7C5 CC6F41          AFFIAR  LDD #$6F41      ; AFFICHE AR DS DISBUF
+ E7C8 DDFE                    STD <DISBUF+4
+ E7CA 17F8F0                  LBSR BADDR      ; AFFICHE ADRESSE ARRIVEE
+ E7CD 9FEC                    STX <ADDARR
+ E7CF 17F84E                  LBSR GETKEY
+ E7D2 8131                    CMPA #$31       ; TOUCHE GO?
+ E7D4 2703                    BEQ SUIVT       ; OUI, CHARGE ADRESSE
+ E7D6 16FA63                  LBRA RPOINT 
                               
- E7D6 17FAC4          SUIVT   LBSR CLRDIS     ; ETEINDRE AFFICHAGE
- E7D9 86FF                    LDA #$FF
- E7DB 9CEA                    CMPX <ADDDEP    ; ARRIVEE<DEPART ?
- E7DD 2501                    BLO STOCKA      ; OUI, STOCKE DS NEGPOS
- E7DF 4C                      INCA
- E7E0 97E9            STOCKA  STA <NEGPOS     ; NEGPOS=0>0 NEGPOS=FF<0
- E7E2 39                      RTS
+ E7D9 17FAC4          SUIVT   LBSR CLRDIS     ; ETEINDRE AFFICHAGE
+ E7DC 86FF                    LDA #$FF
+ E7DE 9CEA                    CMPX <ADDDEP    ; ARRIVEE<DEPART ?
+ E7E0 2501                    BLO STOCKA      ; OUI, STOCKE DS NEGPOS
+ E7E2 4C                      INCA
+ E7E3 97E9            STOCKA  STA <NEGPOS     ; NEGPOS=0>0 NEGPOS=FF<0
+ E7E5 39                      RTS
 
 
                       ****** AFFICHE L'ADRESSE DE CHARGEMENT ******
@@ -1296,20 +1300,20 @@
                       *
                       *
                       *
- E7E3 1F21            AFFIAD  TFR Y,X
- E7E5 1F10                    TFR X,D         ; NLLE ADRESSE DE DEP APRES INSTRUC
- E7E7 17F91E                  LBSR R7SEG 
- E7EA 97FB                    STA <DISBUF+1
- E7EC 1F10                    TFR X,D
- E7EE 17F913                  LBSR L7SEG
- E7F1 97FA                    STA <DISBUF
- E7F3 1F98                    TFR B,A
- E7F5 17F910                  LBSR R7SEG
- E7F8 97FD                    STA <DISBUF+3
- E7FA 1F98                    TFR B,A
- E7FC 17F905                  LBSR L7SEG
- E7FF 97FC                    STA <DISBUF+2
- E801 39                      RTS
+ E7E6 1F21            AFFIAD  TFR Y,X
+ E7E8 1F10                    TFR X,D         ; NLLE ADRESSE DE DEP APRES INSTRUC
+ E7EA 17F91B                  LBSR R7SEG 
+ E7ED 97FB                    STA <DISBUF+1
+ E7EF 1F10                    TFR X,D
+ E7F1 17F910                  LBSR L7SEG
+ E7F4 97FA                    STA <DISBUF
+ E7F6 1F98                    TFR B,A
+ E7F8 17F90D                  LBSR R7SEG
+ E7FB 97FD                    STA <DISBUF+3
+ E7FD 1F98                    TFR B,A
+ E7FF 17F902                  LBSR L7SEG
+ E802 97FC                    STA <DISBUF+2
+ E804 39                      RTS
 
 
                       *************************
@@ -1317,8 +1321,8 @@
                       *************************
 
 
- E802 BE07DD          RNMI    LDX >SAVNMI
- E805 6E84                    JMP ,X          ; EXECUTE ROUTINE NMI
+ E805 BE07DD          RNMI    LDX >SAVNMI
+ E808 6E84                    JMP ,X          ; EXECUTE ROUTINE NMI
 
 
 
@@ -1331,51 +1335,54 @@
                       * Added 6309 check from bertmon53
                                             
                       D6809uP
- E807 BDE828                  JSR     DT6863
- E80A 2605                    BNE     D63
+ E80A BDE834                  JSR     DT6863
+ E80D 2605                    BNE     D63
                       D68
- E80C CC7D7F                  LDD     #$7D7F      ; 68
- E80F 2003                    BRA     D09uP
+ E80F CC7D7F                  LDD     #$7D7F      ; 68
+ E812 2003                    BRA     D09uP
                       D63
- E811 CC7D1F                  LDD     #$7D1F      ; 63
+ E814 CC7D1F                  LDD     #$7D1F      ; 63
                       D09uP
- E814 FD07FA                  STD     DISBUF
- E817 CC7E3F                  LDD     #$7E3F      ; 09
- E81A FD07FC                  STD     DISBUF+2
- E81D CC636B                  LDD     #$636B      ; uP
- E820 FD07FE                  STD     DISBUF+4
- E823 BDE07B          DPLOOP  JSR     >DISPRE
- E826 20FB                    BRA     DPLOOP
+ E817 FD07FA                  STD     DISBUF
+ E81A CC7E3F                  LDD     #$7E3F      ; 09
+ E81D FD07FC                  STD     DISBUF+2
+ E820 CC636B                  LDD     #$636B      ; uP
+ E823 FD07FE                  STD     DISBUF+4
+ E826 BDE07B          DPLOOP  JSR     >DISPRE
+ E829 17F7F4                  LBSR    >GETKEY
+ E82C 81FF                    CMPA    #$FF        ; $FF is no key pressed
+ E82E 1026FA15                LBNE    RRSTAR      ;
+ E832 20F2                    BRA     DPLOOP
 
                       DT6863  ; 6809/6309 test
- E828 3406                    PSHS    D
- E82A 1043                    FDB     $1043           ; 6309 COMD, 6809 COMA
- E82C E161                    CMPB    1,S             ; 6309 NE,   6809 EQ
- E82E 4F                      CLRA    ;$              ; TEST 6309
- E82F 4C                      INCA    ;$
- E830 3586                    PULS    D,PC 
+ E834 3406                    PSHS    D
+ E836 1043                    FDB     $1043           ; 6309 COMD, 6809 COMA
+ E838 E161                    CMPB    1,S             ; 6309 NE,   6809 EQ
+ E83A 4F                      CLRA    ;$              ; TEST 6309
+ E83B 4C                      INCA    ;$
+ E83C 3586                    PULS    D,PC 
 
-                      * Displays: 'tst-kk'
+                      * Displays: 'tst- kk'
                       * Key value as reported by GETKEY
 
                       KBTEST
- E832 CC713D                  LDD     #$713D
- E835 FD07FA                  STD     DISBUF
- E838 CC7101                  LDD     #$7101
- E83B FD07FC                  STD     DISBUF+2
- E83E 4F                      CLRA
- E83F 5F                      CLRB
- E840 FD07FE                  STD     DISBUF+4
+ E83E CC713D                  LDD     #$713D
+ E841 FD07FA                  STD     DISBUF
+ E844 CC7101                  LDD     #$7101
+ E847 FD07FC                  STD     DISBUF+2
+ E84A 4F                      CLRA
+ E84B 5F                      CLRB
+ E84C FD07FE                  STD     DISBUF+4
                       KBLOOP  
- E843 17F7DA                  LBSR    >GETKEY
- E846 3402                    PSHS    A
- E848 17F8B9                  LBSR    >L7SEG
- E84B B707FE                  STA     DISBUF+4
- E84E 3502                    PULS    A
- E850 17F8B5                  LBSR    >R7SEG
- E853 B707FF                  STA     DISBUF+5
- E856 17F822                  LBSR    >DISPRE 
- E859 20E8                    BRA     KBLOOP
+ E84F 17F7CE                  LBSR    >GETKEY
+ E852 3402                    PSHS    A
+ E854 17F8AD                  LBSR    >L7SEG
+ E857 B707FE                  STA     DISBUF+4
+ E85A 3502                    PULS    A
+ E85C 17F8A9                  LBSR    >R7SEG
+ E85F B707FF                  STA     DISBUF+5
+ E862 17F816                  LBSR    >DISPRE 
+ E865 20E8                    BRA     KBLOOP
 
                       * segments:
                       *     _3_
@@ -1410,11 +1417,11 @@
                               ORG $EFF2
 
  EFF2 077A                    FDB RSWI3       ; INTERRUPTION SOFT No 3
- EFF4 E291                    FDB RSWI2       ; INTERRUPTION SOFT No 2
+ EFF4 E294                    FDB RSWI2       ; INTERRUPTION SOFT No 2
  EFF6 0775                    FDB RFIRQ       ; INTERRUPTION RAPIDE HARD
  EFF8 0770                    FDB RIRQ        ; INTERRUPTION NORMALE HARD
- EFFA E2BF                    FDB RSWI        ; INTERRUPTION SOFT No 1
- EFFC E802                    FDB RNMI        ; INTERRUPTION NON MASQUABLE HARD
+ EFFA E2C2                    FDB RSWI        ; INTERRUPTION SOFT No 1
+ EFFC E805                    FDB RNMI        ; INTERRUPTION NON MASQUABLE HARD
  EFFE E22E                    FDB RESTAR      ; RESET GENERAL
 
 
@@ -1491,61 +1498,61 @@ Register
                               END 
 
 SYMBOL TABLE
-    ADDARR 02 07EC    ADDDEP 02 07EA    AF2DIG 02 E2FA    AFCLIG 02 E7B0
-    AFEROR 02 E582    AFFIAD 02 E7E3    AFFIAR 02 E7C2    AFICHA 02 E619
-    AFIVAL 02 E3F5    AFSIGN 02 E5D5     BADDR 02 E0BD    BCOURT 02 E781
-    BITCA0 02 E5EB    BITCA1 02 E5DD    BITLSB 02 E5DB    BOUCL1 02 E709
-    BOUCL2 02 E711    BOUCL3 02 E6FA    BOUFIN 02 E654    BPOINT 02 E20D
-    BRANNE 02 E745    BRANPO 02 E73E     CAL16 02 E4F3    CALCON 02 E41C
-    CALCU8 02 E504    CALCUL 02 E519    CALOFS 02 E76F    CALPOT 02 E1E8
-    CARRY1 02 E5C8    CARSUI 02 E61D    CHAN16 02 E3E0    CHANG8 02 E3CB
-    CHAR16 02 E4B7    CHARGE 02 E750    CHPOST 02 E465    CHTCHI 02 E4C3
-    CHTDON 02 E4C6    CLIGNE 02 E7A6    CLIGNO 02 E7A8    CLRDIS 02 E29D
-    CODFIN 02 E68D    COLSUI 02 E050    COMDEC 02 07EE    COMPAB 02 E43A
-    COMPAR 02 E4BB    COMPR2 02 E52E    COMPR3 02 E53A    COMPR4 02 E54C
-    COMPR5 02 E575    CONHEX 02 E11A    CONROT 02 E5E3     CONTI 02 E208
-     D09UP 02 E814       D63 02 E811       D68 02 E80C   D6809UP 02 E807
-    DEBCHA 02 E6E8    DECENC 02 E58D    DECHEX 02 E50C    DECKEY 02 E05B
-     DECRE 02 E1AF    DECTJS 02 E593    DEPLAC 02 E4FA    DERADD 02 E645
-    DETECS 02 E609    DIGTBL 02 E010    DISBUF 02 07FA    DISCNT 00 A005
-    DISFIN 02 E64F    DISPRE 02 E07B    DISREG 00 A004      DLY1 02 E0AD
-      DLY2 02 E06D    DLY30U 02 E5BD    DLY5MS 02 E6F2     DONEA 02 E12D
-    DPLOOP 02 E823    DT6863 02 E828    ENCDON 02 E148    ENCORE 02 E2AE
-    EREURE 02 E440    ERREUR 02 E43E     ERROR 02 E7B5      EXCN 02 E283
-     EXDEC 02 E180     EXINC 02 E182    EXLBCL 02 E758    EXLBIL 02 E75A
-    EXLOAD 02 E5F1    EXMEMO 02 E12F    EXOFST 02 E71D    EXPOCT 02 E1B5
-    EXPUNC 02 E659    EXREGI 02 E367    FADDRX 02 E0B7    FINCAL 02 E589
-    FINCHA 02 E6DD    FINCLA 02 E026    FINENR 02 E6BC    FONCTI 02 E126
-    FONREG 02 E31F    GETKEY 02 E020    HEXCON 02 E0EF    HEXIN7 02 E0D4
-    INCREM 02 E16B     INTER 02 E30C    INTER2 02 E2B4    INTER3 02 E5AF
-    INTR05 02 E44C    INTR08 02 E47F    INTR16 02 E4A0    INTVAL 02 E4D7
-    KBLOOP 02 E843    KBTEST 02 E832    KEYHEX 02 E0EC    KEYTBL 02 E000
-     L7SEG 02 E104    LIGSUI 02 E03B    LSBDSA 02 E58B    M10000 02 E563
-      MABS 00 0760     MOINS 02 E202    MSBDON 02 E4CC    MSBLSB 02 E59A
-    MUL100 02 E5A3    MULFIN 02 E546    MULPAR 02 E525    MUP100 02 E5A9
+    ADDARR 02 07EC    ADDDEP 02 07EA    AF2DIG 02 E2FD    AFCLIG 02 E7B3
+    AFEROR 02 E585    AFFIAD 02 E7E6    AFFIAR 02 E7C5    AFICHA 02 E61C
+    AFIVAL 02 E3F8    AFSIGN 02 E5D8     BADDR 02 E0BD    BCOURT 02 E784
+    BITCA0 02 E5EE    BITCA1 02 E5E0    BITLSB 02 E5DE    BOUCL1 02 E70C
+    BOUCL2 02 E714    BOUCL3 02 E6FD    BOUFIN 02 E657    BPOINT 02 E20D
+    BRANNE 02 E748    BRANPO 02 E741     CAL16 02 E4F6    CALCON 02 E41F
+    CALCU8 02 E507    CALCUL 02 E51C    CALOFS 02 E772    CALPOT 02 E1E8
+    CARRY1 02 E5CB    CARSUI 02 E620    CHAN16 02 E3E3    CHANG8 02 E3CE
+    CHAR16 02 E4BA    CHARGE 02 E753    CHPOST 02 E468    CHTCHI 02 E4C6
+    CHTDON 02 E4C9    CLIGNE 02 E7A9    CLIGNO 02 E7AB    CLRDIS 02 E2A0
+    CODFIN 02 E690    COLSUI 02 E050    COMDEC 02 07EE    COMPAB 02 E43D
+    COMPAR 02 E4BE    COMPR2 02 E531    COMPR3 02 E53D    COMPR4 02 E54F
+    COMPR5 02 E578    CONHEX 02 E11A    CONROT 02 E5E6     CONTI 02 E208
+     D09UP 02 E817       D63 02 E814       D68 02 E80F   D6809UP 02 E80A
+    DEBCHA 02 E6EB    DECENC 02 E590    DECHEX 02 E50F    DECKEY 02 E05B
+     DECRE 02 E1AF    DECTJS 02 E596    DEPLAC 02 E4FD    DERADD 02 E648
+    DETECS 02 E60C    DIGTBL 02 E010    DISBUF 02 07FA    DISCNT 00 A005
+    DISFIN 02 E652    DISPRE 02 E07B    DISREG 00 A004      DLY1 02 E0AD
+      DLY2 02 E06D    DLY30U 02 E5C0    DLY5MS 02 E6F5     DONEA 02 E12D
+    DPLOOP 02 E826    DT6863 02 E834    ENCDON 02 E148    ENCORE 02 E2B1
+    EREURE 02 E443    ERREUR 02 E441     ERROR 02 E7B8      EXCN 02 E286
+     EXDEC 02 E180     EXINC 02 E182    EXLBCL 02 E75B    EXLBIL 02 E75D
+    EXLOAD 02 E5F4    EXMEMO 02 E12F    EXOFST 02 E720    EXPOCT 02 E1B5
+    EXPUNC 02 E65C    EXREGI 02 E36A    FADDRX 02 E0B7    FINCAL 02 E58C
+    FINCHA 02 E6E0    FINCLA 02 E026    FINENR 02 E6BF    FONCTI 02 E126
+    FONREG 02 E322    GETKEY 02 E020    HEXCON 02 E0EF    HEXIN7 02 E0D4
+    INCREM 02 E16B     INTER 02 E30F    INTER2 02 E2B7    INTER3 02 E5B2
+    INTR05 02 E44F    INTR08 02 E482    INTR16 02 E4A3    INTVAL 02 E4DA
+    KBLOOP 02 E84F    KBTEST 02 E83E    KEYHEX 02 E0EC    KEYTBL 02 E000
+     L7SEG 02 E104    LIGSUI 02 E03B    LSBDSA 02 E58E    M10000 02 E566
+      MABS 00 0760     MOINS 02 E202    MSBDON 02 E4CF    MSBLSB 02 E59D
+    MUL100 02 E5A6    MULFIN 02 E549    MULPAR 02 E528    MUP100 02 E5AC
     NDVALH 02 E10F    NEGPOS 02 07E9    NONFIN 02 E122     NOREB 02 E06C
-    NOUDLY 02 E5B5    OFFSET 02 E1CA    OFPOCT 02 E730      PILE 00 07C0
-    PILMON 00 07A0    PLUCOU 02 E77B      PLUS 02 E1FB    PLUSMS 02 07E3
-    POCPOS 02 E461   POSITIF 02 E46F    PRELOW 02 07E7    PRESEH 02 07E5
-    PRESEL 02 07E6    PRESER 02 07E1    PREXIN 02 E18A    PROMPT 02 E2A9
-     R7SEG 02 E108    R8BREG 02 E3B5       RCR 02 E49C    RE8BIT 02 E356
-    REBIT8 02 E35B    RECBIT 02 E5B3    RECMCE 02 E557     RECOM 02 E098
-    RECYCL 02 E683    REG16B 02 E3C0     REGPC 02 E360    REGPRE 02 E334
-    REGSUI 02 E313    REGTBL 02 E2B6    REMEMO 02 E138    RESTAR 02 E22E
-    RETOU1 02 E787    RETOU2 02 E78B    RETOUR 02 E4F9     RFIRQ 00 0775
-      RIRQ 00 0770      RNMI 02 E802    ROUNMI 02 E287    RPOINT 02 E23C
-      RSWI 02 E2BF     RSWI2 02 E291     RSWI3 00 077A    SADDR1 02 07F2
-    SADDR2 02 07F4    SASWI2 02 07DF      SAUT 02 E700    SAUVER 02 07E2
-     SAVB1 02 07F6     SAVB2 02 07F7    SAVCNT 02 07F0    SAVNMI 02 07DD
-    SAVPIL 02 07F8    SAVPOC 02 07E4    SAVREG 02 07F1    SAVRES 02 07EF
-    SCARRY 02 E5B7    SCNCNT 00 A007    SCNREG 00 A006    SCRUDE 02 E32E
-    SCRUTA 02 E09F    SCRUTC 02 E0F6    SECPAR 02 E565    SETMBS 02 E220
-       SM1 02 E227       SM2 02 E229    STADON 02 E49A    STOCKA 02 E7E0
-    STODN1 02 E494    STODON 02 E492       SUI 02 E4EB    SUICHA 02 E637
-    SUITEB 02 E768    SUITEP 02 E4E0    SUITER 02 E2E6     SUIVT 02 E7D6
-     TEMPO 02 E7BB    TESTER 02 E56F    TESTST 02 E432    TJTRAN 02 E6A8
-    TOUREG 02 E2D3    TRANSM 02 E6F0    TSTDEC 02 E328    TSTPOC 02 E45C
-    TSTSUI 02 E445    VALHEX 02 E116
-218 SYMBOLS
+    NOUDLY 02 E5B8    OFFSET 02 E1CA    OFPOCT 02 E733      PILE 00 07C0
+    PILMON 00 07A0    PLUCOU 02 E77E      PLUS 02 E1FB    PLUSMS 02 07E3
+    POCPOS 02 E464   POSITIF 02 E472    PRELOW 02 07E7    PRESEH 02 07E5
+    PRESEL 02 07E6    PRESER 02 07E1    PREXIN 02 E18A    PROMPT 02 E2AC
+     R7SEG 02 E108    R8BREG 02 E3B8       RCR 02 E49F    RE8BIT 02 E359
+    REBIT8 02 E35E    RECBIT 02 E5B6    RECMCE 02 E55A     RECOM 02 E098
+    RECYCL 02 E686    REG16B 02 E3C3     REGPC 02 E363    REGPRE 02 E337
+    REGSUI 02 E316    REGTBL 02 E2B9    REMEMO 02 E138    RESTAR 02 E22E
+    RETOU1 02 E78A    RETOU2 02 E78E    RETOUR 02 E4FC     RFIRQ 00 0775
+      RIRQ 00 0770      RNMI 02 E805    ROUNMI 02 E28A    RPOINT 02 E23C
+    RRSTAR 02 E247      RSWI 02 E2C2     RSWI2 02 E294     RSWI3 00 077A
+    SADDR1 02 07F2    SADDR2 02 07F4    SASWI2 02 07DF      SAUT 02 E703
+    SAUVER 02 07E2     SAVB1 02 07F6     SAVB2 02 07F7    SAVCNT 02 07F0
+    SAVNMI 02 07DD    SAVPIL 02 07F8    SAVPOC 02 07E4    SAVREG 02 07F1
+    SAVRES 02 07EF    SCARRY 02 E5BA    SCNCNT 00 A007    SCNREG 00 A006
+    SCRUDE 02 E331    SCRUTA 02 E09F    SCRUTC 02 E0F6    SECPAR 02 E568
+    SETMBS 02 E220       SM1 02 E227       SM2 02 E229    STADON 02 E49D
+    STOCKA 02 E7E3    STODN1 02 E497    STODON 02 E495       SUI 02 E4EE
+    SUICHA 02 E63A    SUITEB 02 E76B    SUITEP 02 E4E3    SUITER 02 E2E9
+     SUIVT 02 E7D9     TEMPO 02 E7BE    TESTER 02 E572    TESTST 02 E435
+    TJTRAN 02 E6AB    TOUREG 02 E2D6    TRANSM 02 E6F3    TSTDEC 02 E32B
+    TSTPOC 02 E45F    TSTSUI 02 E448    VALHEX 02 E116
+219 SYMBOLS
 
 0 error(s), 0 warning(s)

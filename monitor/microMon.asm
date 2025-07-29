@@ -448,6 +448,10 @@ RPOINT  LDS #PILMON
         SETDP $07
         LDA #$07        ; INIT DP
         TFR A,DP
+        
+        LBRA D6809uP    ; Banner on display and wait for any key
+
+RRSTAR        
         BSR CLRDIS      ; DISBUF=0
         LDA #$01
         STA <DISBUF     ; CHARGEMENT PROMPT
@@ -1345,6 +1349,9 @@ D09uP
         LDD     #$636B      ; uP
         STD     DISBUF+4
 DPLOOP  JSR     >DISPRE
+        LBSR    >GETKEY
+        CMPA    #$FF        ; $FF is no key pressed
+        LBNE    RRSTAR      ;
         BRA     DPLOOP
 
 DT6863  ; 6809/6309 test
@@ -1355,7 +1362,7 @@ DT6863  ; 6809/6309 test
         INCA    ;$
         PULS    D,PC 
 
-* Displays: 'tst-kk'
+* Displays: 'tst- kk'
 * Key value as reported by GETKEY
 
 KBTEST
