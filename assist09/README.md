@@ -1,4 +1,4 @@
-* ASSIST09 on the MicroKit09MK2
+## ASSIST09 on the MicroKit09MK2
 
 ASSIST09 as configured in this directory requires RAM at $0000 to $1FFF, ROM at $E000-$FFFF and an ACIA (MC6850) at $A400-$A401. 
 
